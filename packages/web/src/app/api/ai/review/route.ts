@@ -68,7 +68,7 @@ ${diffSummary}`;
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${nimKey}` },
       body: JSON.stringify({
-        model: "deepseek-ai/deepseek-v4-flash",
+        model: "meta/llama-3.3-70b-instruct",
         messages: [{ role: "user", content: prompt }],
         max_tokens: 1024,
         temperature: 0.2,

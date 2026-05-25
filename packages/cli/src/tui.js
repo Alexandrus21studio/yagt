@@ -398,7 +398,7 @@ async function sendAIMessage(msg) {
 
     const https = require('https');
     const payload = JSON.stringify({
-      model: cfg.model || 'deepseek-ai/deepseek-v4-flash',
+      model: cfg.model || 'meta/llama-3.3-70b-instruct',
       messages: [{ role: 'system', content: systemMsg }, ...history],
       max_tokens: 800,
       temperature: 0.3,

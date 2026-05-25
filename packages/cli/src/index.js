@@ -1033,7 +1033,7 @@ program
       console.log(chalk.bold('Configuration:'));
       console.log(`  GitHub token:  ${cfg.githubToken ? chalk.green(cfg.githubToken.slice(0, 12) + '…') : chalk.red('not set')}`);
       console.log(`  NIM API key:   ${cfg.nimApiKey ? chalk.green(cfg.nimApiKey.slice(0, 12) + '…') : chalk.red('not set')}`);
-      console.log(`  AI model:      ${chalk.cyan(cfg.nimModel || 'deepseek-ai/deepseek-v4-flash')}`);
+      console.log(`  AI model:      ${chalk.cyan(cfg.nimModel || 'meta/llama-3.3-70b-instruct')}`);
       console.log(chalk.dim(`  Config file: ${require('path').join(require('os').homedir(), '.yagt', 'config.json')}`));
       return;
     }

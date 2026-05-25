@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { clerkClient } from "@clerk/nextjs/server";
 
 const NIM_URL = "https://integrate.api.nvidia.com/v1/chat/completions";
-const NIM_MODEL = "deepseek-ai/deepseek-v4-flash";
+const NIM_MODEL = "meta/llama-3.3-70b-instruct";
 const GITHUB_BASE = "https://api.github.com";
 
 interface Message {

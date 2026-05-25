@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { Settings, User, Key, Bot, Palette, LogOut, CheckCircle, AlertCircle, Github } from "lucide-react";
 
 const NIM_MODELS = [
-  { id: "deepseek-ai/deepseek-v4-flash", label: "DeepSeek V4 Flash", desc: "Fastest — best for quick answers" },
+  { id: "meta/llama-3.3-70b-instruct", label: "DeepSeek V4 Flash", desc: "Fastest — best for quick answers" },
   { id: "meta/llama-3.3-70b-instruct", label: "Llama 3.3 70B", desc: "Balanced speed and quality" },
   { id: "nvidia/llama-3.1-nemotron-70b-instruct", label: "Nemotron 70B", desc: "Best quality, slower" },
 ];
@@ -22,7 +22,7 @@ const THEMES = [
 export default function SettingsPage() {
   const { user, isLoaded } = useUser();
   const { signOut } = useClerk();
-  const [savedModel, setSavedModel] = useState("deepseek-ai/deepseek-v4-flash");
+  const [savedModel, setSavedModel] = useState("meta/llama-3.3-70b-instruct");
   const [savedTheme, setSavedTheme] = useState("dark");
   const [githubConnected, setGithubConnected] = useState<boolean | null>(null);
   const [saved, setSaved] = useState(false);

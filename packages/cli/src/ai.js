@@ -29,7 +29,7 @@ function getGithubToken() {
 
 function getNimModel() {
   const cfg = loadConfig();
-  return cfg.nimModel || 'deepseek-ai/deepseek-v4-flash';
+  return cfg.nimModel || 'meta/llama-3.3-70b-instruct';
 }
 
 async function callNIM(messages, options = {}) {
