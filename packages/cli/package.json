@@ -1,7 +1,7 @@
 {
-  "name": "@yagt/cli",
-  "version": "0.1.0",
-  "description": "Yet Another Git Tool CLI",
+  "name": "yagt",
+  "version": "0.2.0",
+  "description": "Yet Another Git Tool — AI-powered GitHub CLI with NVIDIA NIMs",
   "main": "src/index.js",
   "bin": {
     "yagt": "./src/index.js",
@@ -10,9 +10,35 @@
   "scripts": {
     "test": "echo \"Tests coming soon\""
   },
-  "keywords": ["git", "cli", "yagt"],
+  "files": [
+    "src/"
+  ],
+  "keywords": [
+    "git",
+    "cli",
+    "github",
+    "ai",
+    "nvidia",
+    "nim",
+    "developer-tools",
+    "github-cli",
+    "commit",
+    "pull-request",
+    "issue"
+  ],
   "author": "Alexandrus21 Studio",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alexandrus21/yagt.git"
+  },
+  "homepage": "https://github.com/alexandrus21/yagt#readme",
+  "bugs": {
+    "url": "https://github.com/alexandrus21/yagt/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
     "chalk": "^4.1.2",
     "commander": "^11.1.0",
