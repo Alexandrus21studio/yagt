@@ -1,13 +1,16 @@
 {
   "name": "yagt",
   "version": "0.1.0",
-  "description": "Yet Another Git Tool - AI-powered git client",
+  "description": "Yet Another Git Tool - AI-powered git client with web GUI",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "cli": "node packages/cli/src/index.js",
-    "web": "echo 'Web app moved to https://github.com/Alexandrus21studio/yagt-cli-web'",
-    "build": "echo 'Web app moved to https://github.com/Alexandrus21studio/yagt-cli-web'",
-    "lint": "echo 'Web app moved to https://github.com/Alexandrus21studio/yagt-cli-web'"
+    "web": "cd packages/web && npm run dev",
+    "build:web": "cd packages/web && npm run build",
+    "lint": "cd packages/web && npm run lint"
   },
   "keywords": [
     "git",

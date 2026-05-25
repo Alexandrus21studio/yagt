@@ -1,4 +1,4 @@
-# yagt — Yet Another Git Tool
+# yagt-cli — Yet Another Git Tool
 
 <p align="center">
   <img src="https://img.shields.io/badge/version-0.1.0-blue" />
@@ -6,47 +6,45 @@
   <img src="https://img.shields.io/badge/AI-powered-orange" />
 </p>
 
-**yagt** is an AI-powered git CLI. The web GUI lives in a separate repo: [`yagt-web`](https://github.com/Alexandrus21studio/yagt-cli-web). It wraps git with intelligent features like AI commit message generation, automated code review, repository summaries, and issue analysis.
+**yagt** is an AI-powered GitHub alternative. This monorepo contains the CLI and the Web GUI.
+
+- **CLI** (`packages/cli`) — AI-powered git client
+- **Web** (`packages/web`) — Next.js web GUI → [Live on Vercel](https://yagt-web.vercel.app)
 
 ---
 
 ## 🚀 Features
 
-### CLI (`@yagt/cli`)
-- **AI commit messages** — `yagt commit --ai` generates conventional commit messages from your diff
-- **AI branch names** — `yagt branch --ai "fix login bug"` suggests clean branch names
-- **AI code review** — `yagt diff --ai` reviews your changes before push
-- **AI repo summary** — `yagt summary` analyzes the entire repository
-- **AI explain** — `yagt explain "git rebase -i"` explains any git command
-- All standard git operations with beautiful CLI output (init, add, commit, push, pull, clone, log, branch, stash, merge, etc.)
+### CLI
+- **AI commit messages** — `yagt commit --ai`
+- **AI branch names** — `yagt branch --ai "fix login bug"`
+- **AI code review** — `yagt diff --ai`
+- **AI repo summary** — `yagt summary`
+- **AI explain** — `yagt explain "git rebase -i"`
+- All standard git operations
 
-### Web GUI ([`yagt-web`](https://github.com/Alexandrus21studio/yagt-cli-web))
-- **Dashboard** — Overview of repositories, activity feed, AI daily summary
-- **Repository browser** — File tree, README viewer, commit history, AI repo summary panel
-- **Issues** — Issue list with AI severity badges and AI-generated summaries
-- **Pull Requests** — PR list with AI review status (safe / attention / blocking)
-- **AI Assistant** — Chat interface to ask questions about any repository
+### Web GUI
+- **Dashboard** — AI daily summary, activity feed, repos
+- **Repository Browser** — File tree, README, commits, AI summary
+- **Issues** — AI severity badges, AI summaries
+- **Pull Requests** — AI review status
+- **AI Assistant** — Chat about any repo
+- **GitHub OAuth** — Sign in with GitHub
 
 ---
 
-## 📦 CLI Installation
+## 📦 Installation
 
 ```bash
-# Clone the CLI repository
 git clone https://github.com/Alexandrus21studio/yagt-cli.git
-cd yagt/packages/cli
+cd yagt-cli
+
+# CLI only
+cd packages/cli
 npm install -g .
 
-# Configure AI (optional — uses OpenAI)
-yagt config --api-key YOUR_OPENAI_KEY
-```
-
-## 🌐 Web GUI
-
-```bash
-# Web app (separate repo)
-git clone https://github.com/Alexandrus21studio/yagt-cli-web.git
-cd yagt-web
+# Web only
+cd packages/web
 npm install
 npm run dev
 ```
@@ -56,21 +54,24 @@ npm run dev
 ## 🛠️ CLI Usage
 
 ```bash
-# Initialize a repo
 yagt init my-project
-
-# Stage and commit with AI-generated message
 yagt add .
 yagt commit --ai
-
-# Get AI review of your diff
 yagt diff --ai
-
-# Generate repo summary
 yagt summary
-
-# Explain any git command
 yagt explain "git cherry-pick"
+```
+
+---
+
+## 🌐 Web GUI
+
+**Live:** [https://yagt-web.vercel.app](https://yagt-web.vercel.app)
+
+```bash
+cd packages/web
+npm install
+npm run dev        # localhost:3000
 ```
 
 ---
@@ -78,30 +79,19 @@ yagt explain "git cherry-pick"
 ## 🏗️ Project Structure
 
 ```
-yagt/
+yagt-cli/
 ├── packages/
-│   └── cli/          # Node.js CLI tool
+│   ├── cli/          # Node.js CLI tool
+│   │   └── src/
+│   │       ├── index.js
+│   │       └── ai.js
+│   └── web/          # Next.js web application
 │       └── src/
-│           ├── index.js    # CLI commands
-│           └── ai.js       # AI integrations
+│           ├── app/
+│           ├── components/
+│           └── lib/
 ├── package.json
 └── README.md
-```
-
----
-
-## 🧠 AI Configuration
-
-yagt uses OpenAI's API for AI features. Set your API key via:
-
-```bash
-yagt config --api-key sk-xxxxxxxx
-```
-
-Or set the environment variable:
-
-```bash
-export OPENAI_API_KEY=sk-xxxxxxxx
 ```
 
 ---
