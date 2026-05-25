@@ -6,7 +6,7 @@
   <img src="https://img.shields.io/badge/AI-powered-orange" />
 </p>
 
-**yagt** is an AI-powered git CLI. The web GUI lives in a separate repo: [`yagt-web`](https://github.com/Alexandrus21studio/yagt-web). It wraps git with intelligent features like AI commit message generation, automated code review, repository summaries, and issue analysis.
+**yagt** is an AI-powered git CLI. The web GUI lives in a separate repo: [`yagt-web`](https://github.com/Alexandrus21studio/yagt-cli-web). It wraps git with intelligent features like AI commit message generation, automated code review, repository summaries, and issue analysis.
 
 ---
 
@@ -20,7 +20,7 @@
 - **AI explain** — `yagt explain "git rebase -i"` explains any git command
 - All standard git operations with beautiful CLI output (init, add, commit, push, pull, clone, log, branch, stash, merge, etc.)
 
-### Web GUI ([`yagt-web`](https://github.com/Alexandrus21studio/yagt-web))
+### Web GUI ([`yagt-web`](https://github.com/Alexandrus21studio/yagt-cli-web))
 - **Dashboard** — Overview of repositories, activity feed, AI daily summary
 - **Repository browser** — File tree, README viewer, commit history, AI repo summary panel
 - **Issues** — Issue list with AI severity badges and AI-generated summaries
@@ -33,7 +33,7 @@
 
 ```bash
 # Clone the CLI repository
-git clone https://github.com/Alexandrus21studio/yagt.git
+git clone https://github.com/Alexandrus21studio/yagt-cli.git
 cd yagt/packages/cli
 npm install -g .
 
@@ -45,7 +45,7 @@ yagt config --api-key YOUR_OPENAI_KEY
 
 ```bash
 # Web app (separate repo)
-git clone https://github.com/Alexandrus21studio/yagt-web.git
+git clone https://github.com/Alexandrus21studio/yagt-cli-web.git
 cd yagt-web
 npm install
 npm run dev
