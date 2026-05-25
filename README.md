@@ -6,7 +6,7 @@
   <img src="https://img.shields.io/badge/AI-powered-orange" />
 </p>
 
-**yagt** is an AI-powered GitHub alternative with a modern web GUI and a developer-friendly CLI. It wraps git with intelligent features like AI commit message generation, automated code review, repository summaries, and issue analysis.
+**yagt** is an AI-powered git CLI. The web GUI lives in a separate repo: [`yagt-web`](https://github.com/Alexandrus21studio/yagt-web). It wraps git with intelligent features like AI commit message generation, automated code review, repository summaries, and issue analysis.
 
 ---
 
@@ -20,7 +20,7 @@
 - **AI explain** — `yagt explain "git rebase -i"` explains any git command
 - All standard git operations with beautiful CLI output (init, add, commit, push, pull, clone, log, branch, stash, merge, etc.)
 
-### Web GUI (`@yagt/web`)
+### Web GUI ([`yagt-web`](https://github.com/Alexandrus21studio/yagt-web))
 - **Dashboard** — Overview of repositories, activity feed, AI daily summary
 - **Repository browser** — File tree, README viewer, commit history, AI repo summary panel
 - **Issues** — Issue list with AI severity badges and AI-generated summaries
@@ -29,21 +29,26 @@
 
 ---
 
-## 📦 Installation
+## 📦 CLI Installation
 
 ```bash
-# Clone the repository
+# Clone the CLI repository
 git clone https://github.com/Alexandrus21studio/yagt.git
-cd yagt
-
-# Install dependencies
-npm install
-
-# Link the CLI globally
-npm link -w packages/cli
+cd yagt/packages/cli
+npm install -g .
 
 # Configure AI (optional — uses OpenAI)
 yagt config --api-key YOUR_OPENAI_KEY
+```
+
+## 🌐 Web GUI
+
+```bash
+# Web app (separate repo)
+git clone https://github.com/Alexandrus21studio/yagt-web.git
+cd yagt-web
+npm install
+npm run dev
 ```
 
 ---
@@ -70,34 +75,16 @@ yagt explain "git cherry-pick"
 
 ---
 
-## 🌐 Web GUI
-
-```bash
-# Start the web interface
-npm run web
-
-# Or from the workspace root
-cd packages/web && npm run dev
-```
-
-The web GUI runs on `http://localhost:3000` by default.
-
----
-
 ## 🏗️ Project Structure
 
 ```
 yagt/
 ├── packages/
-│   ├── cli/          # Node.js CLI tool
-│   │   └── src/
-│   │       ├── index.js    # CLI commands
-│   │       └── ai.js       # AI integrations
-│   └── web/          # Next.js web application
+│   └── cli/          # Node.js CLI tool
 │       └── src/
-│           ├── app/        # Next.js App Router
-│           └── components/ # Shared UI components
-├── package.json      # Workspace root
+│           ├── index.js    # CLI commands
+│           └── ai.js       # AI integrations
+├── package.json
 └── README.md
 ```
 
