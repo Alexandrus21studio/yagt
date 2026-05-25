@@ -1,9 +1,12 @@
 "use client";
 
-import { Search, Bell, Plus } from "lucide-react";
+import { Search, Bell, Plus, LogIn, LogOut } from "lucide-react";
 import Link from "next/link";
+import { useSession, signIn, signOut } from "next-auth/react";
 
 export function Header() {
+  const { data: session, status } = useSession();
+
   return (
     <header
       style={{
@@ -77,56 +80,36 @@ export function Header() {
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-        <button
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            padding: "6px 12px",
-          }}
-        >
-          <Plus size={16} />
-          <span className="hide-sm">New</span>
-        </button>
-        <button
-          style={{
-            position: "relative",
-            padding: "6px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Bell size={18} />
-          <span
-            style={{
-              position: "absolute",
-              top: "2px",
-              right: "2px",
-              width: "8px",
-              height: "8px",
-              background: "var(--accent)",
-              borderRadius: "50%",
-            }}
-          />
-        </button>
-        <div
-          style={{
-            width: "32px",
-            height: "32px",
-            borderRadius: "50%",
-            background: "var(--accent)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontWeight: 600,
-            fontSize: "14px",
-            color: "#fff",
-            cursor: "pointer",
-          }}
-        >
-          JD
-        </div>
+        {status === "authenticated" && session?.user ? (
+          <>
+            <button style={{ display: "flex", alignItems: "center", gap: "6px", padding: "6px 12px" }}>
+              <Plus size={16} />
+              <span className="hide-sm">New</span>
+            </button>
+            <button style={{ position: "relative", padding: "6px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Bell size={18} />
+              <span style={{ position: "absolute", top: "2px", right: "2px", width: "8px", height: "8px", background: "var(--accent)", borderRadius: "50%" }} />
+            </button>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }} onClick={() => signOut()} title="Sign out">
+              {session.user.image ? (
+                <img src={session.user.image} alt={session.user.name || "User"} style={{ width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover" }} />
+              ) : (
+                <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 600, fontSize: "14px", color: "#fff" }}>
+                  {(session.user.name || "U").charAt(0).toUpperCase()}
+                </div>
+              )}
+              <span style={{ fontSize: "13px", color: "var(--text-secondary)" }}>
+                {session.user.name || session.user.email || "User"}
+              </span>
+              <LogOut size={14} style={{ color: "var(--text-secondary)" }} />
+            </div>
+          </>
+        ) : (
+          <button onClick={() => signIn("github")} style={{ display: "flex", alignItems: "center", gap: "6px", padding: "6px 14px" }}>
+            <LogIn size={16} />
+            Sign in with GitHub
+          </button>
+        )}
       </div>
     </header>
   );

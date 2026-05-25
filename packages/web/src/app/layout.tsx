@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
+import { Providers } from "@/components/Providers";
 
 export const metadata: Metadata = {
   title: "yagt - Yet Another Git Tool",
@@ -16,22 +17,24 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-          <Header />
-          <div style={{ display: "flex", flex: 1 }}>
-            <Sidebar />
-            <main
-              style={{
-                flex: 1,
-                padding: "24px",
-                overflow: "auto",
-                background: "var(--bg-primary)",
-              }}
-            >
-              {children}
-            </main>
+        <Providers>
+          <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+            <Header />
+            <div style={{ display: "flex", flex: 1 }}>
+              <Sidebar />
+              <main
+                style={{
+                  flex: 1,
+                  padding: "24px",
+                  overflow: "auto",
+                  background: "var(--bg-primary)",
+                }}
+              >
+                {children}
+              </main>
+            </div>
           </div>
-        </div>
+        </Providers>
       </body>
     </html>
   );
