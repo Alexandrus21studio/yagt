@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { GitBranch, Star, GitFork, AlertCircle, FileText, Folder, GitCommit, Clock } from "lucide-react";
+import { GitBranch, Star, GitFork, AlertCircle } from "lucide-react";
 import Link from "next/link";
 
 export default function RepoPage() {
@@ -10,91 +10,77 @@ export default function RepoPage() {
   const name = params.name as string;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+    <div className="flex flex-col gap-5">
       <div>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-          <h1 style={{ fontSize: "20px", fontWeight: 600 }}>
+        <div className="flex items-center gap-2 mb-2">
+          <h1 className="text-xl font-semibold">
             {owner} / {name}
           </h1>
-          <span
-            style={{
-              padding: "2px 8px",
-              borderRadius: "12px",
-              border: "1px solid var(--border-color)",
-              fontSize: "12px",
-              color: "var(--text-secondary)",
-            }}
-          >
-            Public
-          </span>
+          <span className="badge badge-outline badge-sm">Public</span>
         </div>
       </div>
 
-      <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
-        <span style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "13px" }}>
+      <div className="flex gap-4 flex-wrap">
+        <span className="flex items-center gap-1 text-[13px]">
           <GitBranch size={14} /> main
         </span>
-        <span style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "13px" }}>
+        <span className="flex items-center gap-1 text-[13px]">
           <Star size={14} /> 0
         </span>
-        <span style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "13px" }}>
+        <span className="flex items-center gap-1 text-[13px]">
           <GitFork size={14} /> 0
         </span>
-        <span style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "13px" }}>
+        <span className="flex items-center gap-1 text-[13px]">
           <AlertCircle size={14} /> 0 issues
         </span>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "20px" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          <div
-            style={{
-              background: "var(--bg-secondary)",
-              border: "1px solid var(--border-color)",
-              borderRadius: "8px",
-              overflow: "hidden",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                gap: "16px",
-                padding: "12px 16px",
-                borderBottom: "1px solid var(--border-color)",
-                fontSize: "14px",
-              }}
-            >
-              <Link href={`/repo/${owner}/${name}`} style={{ color: "var(--text-primary)", fontWeight: 600, textDecoration: "none" }}>
+      <div className="grid grid-cols-[2fr_1fr] gap-5">
+        <div className="flex flex-col gap-4">
+          <div className="card card-bordered card-compact bg-base-200 overflow-hidden">
+            <div className="tabs tabs-bordered gap-4 px-4 py-3 text-sm">
+              <Link
+                href={`/repo/${owner}/${name}`}
+                className="tab tab-active"
+              >
                 Code
               </Link>
-              <Link href={`/repo/${owner}/${name}/issues`} style={{ color: "var(--text-secondary)", textDecoration: "none" }}>
+              <Link
+                href={`/repo/${owner}/${name}/issues`}
+                className="tab"
+              >
                 Issues
               </Link>
-              <Link href={`/repo/${owner}/${name}/pulls`} style={{ color: "var(--text-secondary)", textDecoration: "none" }}>
+              <Link
+                href={`/repo/${owner}/${name}/pulls`}
+                className="tab"
+              >
                 Pull requests
               </Link>
-              <Link href={`/repo/${owner}/${name}/ai`} style={{ color: "var(--accent)", textDecoration: "none" }}>
+              <Link
+                href={`/repo/${owner}/${name}/ai`}
+                className="tab text-primary"
+              >
                 AI Assistant
               </Link>
             </div>
 
-            <div style={{ padding: "16px" }}>
-              <p style={{ color: "var(--text-secondary)", fontSize: "14px" }}>No files to display.</p>
+            <div className="card-body">
+              <p className="text-base-content/70 text-sm">
+                No files to display.
+              </p>
             </div>
           </div>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          <div
-            style={{
-              background: "var(--bg-secondary)",
-              border: "1px solid var(--border-color)",
-              borderRadius: "8px",
-              padding: "16px",
-            }}
-          >
-            <h3 style={{ fontSize: "14px", fontWeight: 600, marginBottom: "12px" }}>Recent Commits</h3>
-            <p style={{ fontSize: "13px", color: "var(--text-secondary)" }}>No commits yet.</p>
+        <div className="flex flex-col gap-4">
+          <div className="card card-bordered card-compact bg-base-200">
+            <div className="card-body">
+              <h3 className="text-sm font-semibold mb-3">Recent Commits</h3>
+              <p className="text-[13px] text-base-content/70">
+                No commits yet.
+              </p>
+            </div>
           </div>
         </div>
       </div>

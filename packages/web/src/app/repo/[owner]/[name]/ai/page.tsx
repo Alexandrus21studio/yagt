@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import { Send, Bot, User, Sparkles } from "lucide-react";
+import { Send, Bot, Sparkles } from "lucide-react";
 
 export default function AIPage() {
   const params = useParams();
@@ -11,66 +11,37 @@ export default function AIPage() {
   const [input, setInput] = useState("");
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 140px)", gap: "16px" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-        <Sparkles size={20} style={{ color: "var(--accent)" }} />
-        <h1 style={{ fontSize: "20px", fontWeight: 600 }}>
+    <div className="flex flex-col h-[calc(100vh-140px)] gap-4">
+      <div className="flex items-center gap-2">
+        <Sparkles size={20} className="text-primary" />
+        <h1 className="text-xl font-semibold">
           AI Assistant — {owner}/{name}
         </h1>
       </div>
 
-      <div
-        style={{
-          flex: 1,
-          background: "var(--bg-secondary)",
-          border: "1px solid var(--border-color)",
-          borderRadius: "8px",
-          padding: "16px",
-          overflow: "auto",
-          display: "flex",
-          flexDirection: "column",
-          gap: "16px",
-        }}
-      >
-        <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-          <div
-            style={{
-              width: "28px",
-              height: "28px",
-              borderRadius: "50%",
-              background: "var(--accent)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            }}
-          >
-            <Bot size={14} color="#fff" />
+      <div className="flex-1 bg-base-200 border border-base-300 rounded-lg p-4 overflow-auto flex flex-col gap-4">
+        <div className="chat chat-start">
+          <div className="chat-image avatar">
+            <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center">
+              <Bot size={14} className="text-white" />
+            </div>
           </div>
-          <div
-            style={{
-              background: "var(--bg-tertiary)",
-              padding: "12px 16px",
-              borderRadius: "8px",
-              fontSize: "14px",
-              lineHeight: 1.6,
-              maxWidth: "80%",
-            }}
-          >
-            Hello! I'm the yagt AI assistant. Ask me anything about this repository.
+          <div className="chat-bubble bg-base-300 text-base-content">
+            Hello! I'm the yagt AI assistant. Ask me anything about this
+            repository.
           </div>
         </div>
       </div>
 
-      <div style={{ display: "flex", gap: "8px" }}>
+      <div className="flex gap-2">
         <input
           type="text"
           placeholder="Ask the AI about this repository..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          style={{ flex: 1 }}
+          className="input input-bordered input-sm flex-1 bg-base-100"
         />
-        <button style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "8px 16px" }}>
+        <button className="btn btn-sm btn-primary flex items-center justify-center px-4">
           <Send size={16} />
         </button>
       </div>

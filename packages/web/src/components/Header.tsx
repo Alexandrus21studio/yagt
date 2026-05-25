@@ -1,115 +1,55 @@
 "use client";
 
-import { Search, Bell, Plus, LogIn, LogOut } from "lucide-react";
+import { Search, Bell, Plus } from "lucide-react";
 import Link from "next/link";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { Show, SignInButton, UserButton } from "@clerk/nextjs";
 
 export function Header() {
-  const { data: session, status } = useSession();
-
   return (
-    <header
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "12px 24px",
-        background: "var(--bg-secondary)",
-        borderBottom: "1px solid var(--border-color)",
-        gap: "16px",
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+    <header className="flex items-center justify-between px-6 py-3 bg-base-200 border-b border-base-300 gap-4">
+      <div className="flex items-center gap-4">
         <Link
           href="/"
-          style={{
-            fontSize: "20px",
-            fontWeight: 700,
-            color: "var(--text-primary)",
-            textDecoration: "none",
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-          }}
+          className="text-xl font-bold text-base-content no-underline flex items-center gap-2"
         >
-          <span
-            style={{
-              display: "inline-block",
-              width: "28px",
-              height: "28px",
-              background: "var(--accent)",
-              borderRadius: "6px",
-              textAlign: "center",
-              lineHeight: "28px",
-              color: "#fff",
-              fontSize: "14px",
-            }}
-          >
+          <span className="inline-block w-7 h-7 bg-primary rounded-md text-center leading-7 text-white text-sm">
             Y
           </span>
           yagt
         </Link>
       </div>
 
-      <div
-        style={{
-          flex: 1,
-          maxWidth: "500px",
-          position: "relative",
-        }}
-      >
+      <div className="flex-1 max-w-[500px] relative">
         <Search
           size={16}
-          style={{
-            position: "absolute",
-            left: "12px",
-            top: "50%",
-            transform: "translateY(-50%)",
-            color: "var(--text-secondary)",
-          }}
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/70"
         />
         <input
           type="text"
           placeholder="Search repositories, issues, PRs..."
-          style={{
-            width: "100%",
-            paddingLeft: "36px",
-            background: "var(--bg-primary)",
-          }}
+          className="input input-bordered input-sm w-full pl-9 bg-base-100"
         />
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-        {status === "authenticated" && session?.user ? (
-          <>
-            <button style={{ display: "flex", alignItems: "center", gap: "6px", padding: "6px 12px" }}>
-              <Plus size={16} />
-              <span className="hide-sm">New</span>
+      <div className="flex items-center gap-3">
+        <Show when="signed-out">
+          <SignInButton mode="modal">
+            <button className="btn btn-sm btn-primary flex items-center gap-1.5">
+              Sign in with GitHub
             </button>
-            <button style={{ position: "relative", padding: "6px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <Bell size={18} />
-              <span style={{ position: "absolute", top: "2px", right: "2px", width: "8px", height: "8px", background: "var(--accent)", borderRadius: "50%" }} />
-            </button>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }} onClick={() => signOut()} title="Sign out">
-              {session.user.image ? (
-                <img src={session.user.image} alt={session.user.name || "User"} style={{ width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover" }} />
-              ) : (
-                <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 600, fontSize: "14px", color: "#fff" }}>
-                  {(session.user.name || "U").charAt(0).toUpperCase()}
-                </div>
-              )}
-              <span style={{ fontSize: "13px", color: "var(--text-secondary)" }}>
-                {session.user.name || session.user.email || "User"}
-              </span>
-              <LogOut size={14} style={{ color: "var(--text-secondary)" }} />
-            </div>
-          </>
-        ) : (
-          <button onClick={() => signIn("github")} style={{ display: "flex", alignItems: "center", gap: "6px", padding: "6px 14px" }}>
-            <LogIn size={16} />
-            Sign in with GitHub
+          </SignInButton>
+        </Show>
+        <Show when="signed-in">
+          <button className="btn btn-sm btn-ghost flex items-center gap-1.5">
+            <Plus size={16} />
+            <span className="hidden sm:inline">New</span>
           </button>
-        )}
+          <button className="btn btn-sm btn-ghost btn-square relative">
+            <Bell size={18} />
+            <span className="absolute top-0.5 right-0.5 w-2 h-2 bg-primary rounded-full" />
+          </button>
+          <UserButton />
+        </Show>
       </div>
     </header>
   );

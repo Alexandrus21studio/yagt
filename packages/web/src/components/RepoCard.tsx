@@ -15,6 +15,14 @@ interface RepoCardProps {
   aiSummary?: string;
 }
 
+const langClass: Record<string, string> = {
+  TypeScript: "bg-blue-500",
+  Rust: "bg-orange-300",
+  Go: "bg-cyan-500",
+  Python: "bg-blue-600",
+  JavaScript: "bg-yellow-400",
+};
+
 export function RepoCard({
   owner,
   name,
@@ -26,110 +34,54 @@ export function RepoCard({
   updatedAt,
   aiSummary,
 }: RepoCardProps) {
-  const langColor: Record<string, string> = {
-    TypeScript: "#3178c6",
-    Rust: "#dea584",
-    Go: "#00add8",
-    Python: "#3572A5",
-    JavaScript: "#f1e05a",
-  };
-
   return (
-    <div
-      style={{
-        background: "var(--bg-secondary)",
-        border: "1px solid var(--border-color)",
-        borderRadius: "8px",
-        padding: "16px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "8px",
-        transition: "border-color 0.2s",
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-        <Link
-          href={`/repo/${owner}/${name}`}
-          style={{ fontSize: "16px", fontWeight: 600 }}
-        >
-          {owner}/{name}
-        </Link>
-        <span
-          style={{
-            fontSize: "12px",
-            padding: "2px 8px",
-            border: "1px solid var(--border-color)",
-            borderRadius: "12px",
-            color: "var(--text-secondary)",
-          }}
-        >
-          Public
-        </span>
-      </div>
-
-      <p
-        style={{
-          fontSize: "14px",
-          color: "var(--text-secondary)",
-          lineHeight: 1.5,
-        }}
-      >
-        {description}
-      </p>
-
-      {aiSummary && (
-        <div
-          style={{
-            background: "var(--bg-tertiary)",
-            borderRadius: "6px",
-            padding: "8px 12px",
-            fontSize: "13px",
-            color: "var(--text-secondary)",
-            borderLeft: "3px solid var(--accent)",
-          }}
-        >
-          <strong style={{ color: "var(--accent)" }}>AI Summary:</strong>{" "}
-          {aiSummary}
+    <div className="card card-bordered card-compact bg-base-200 transition-colors hover:border-primary">
+      <div className="card-body">
+        <div className="flex items-center gap-2">
+          <Link
+            href={`/repo/${owner}/${name}`}
+            className="text-base font-semibold"
+          >
+            {owner}/{name}
+          </Link>
+          <span className="badge badge-outline badge-sm">Public</span>
         </div>
-      )}
 
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "16px",
-          marginTop: "4px",
-          fontSize: "13px",
-          color: "var(--text-secondary)",
-        }}
-      >
-        {language && (
-          <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-            <span
-              style={{
-                width: "12px",
-                height: "12px",
-                borderRadius: "50%",
-                background: langColor[language] || "var(--text-secondary)",
-                display: "inline-block",
-              }}
-            />
-            {language}
-          </span>
+        <p className="text-sm text-base-content/70 leading-relaxed">
+          {description}
+        </p>
+
+        {aiSummary && (
+          <div className="bg-base-300 rounded-md px-3 py-2 text-sm text-base-content/70 border-l-[3px] border-primary">
+            <strong className="text-primary">AI Summary:</strong> {aiSummary}
+          </div>
         )}
-        <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-          <Star size={14} />
-          {stars.toLocaleString()}
-        </span>
-        <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-          <GitFork size={14} />
-          {forks.toLocaleString()}
-        </span>
-        <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-          <AlertCircle size={14} />
-          {issues}
-        </span>
-        <span style={{ marginLeft: "auto" }}>{updatedAt}</span>
+
+        <div className="flex items-center gap-4 mt-1 text-[13px] text-base-content/70">
+          {language && (
+            <span className="flex items-center gap-1">
+              <span
+                className={`w-3 h-3 rounded-full inline-block ${
+                  langClass[language] || "bg-base-content/70"
+                }`}
+              />
+              {language}
+            </span>
+          )}
+          <span className="flex items-center gap-1">
+            <Star size={14} />
+            {stars.toLocaleString()}
+          </span>
+          <span className="flex items-center gap-1">
+            <GitFork size={14} />
+            {forks.toLocaleString()}
+          </span>
+          <span className="flex items-center gap-1">
+            <AlertCircle size={14} />
+            {issues}
+          </span>
+          <span className="ml-auto">{updatedAt}</span>
+        </div>
       </div>
     </div>
   );

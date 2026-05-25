@@ -15,21 +15,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" data-theme="dark">
+      <body className="min-h-screen bg-base-100 text-base-content">
         <Providers>
-          <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+          <div className="flex flex-col min-h-screen">
             <Header />
-            <div style={{ display: "flex", flex: 1 }}>
+            <div className="flex flex-1">
               <Sidebar />
-              <main
-                style={{
-                  flex: 1,
-                  padding: "24px",
-                  overflow: "auto",
-                  background: "var(--bg-primary)",
-                }}
-              >
+              <main className="flex-1 p-6 overflow-auto bg-base-100">
                 {children}
               </main>
             </div>

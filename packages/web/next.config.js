@@ -4,7 +4,12 @@ const nextConfig = {
   allowedDevOrigins: ["158.69.199.238"],
   images: {
     unoptimized: true,
-    domains: ["avatars.githubusercontent.com"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "avatars.githubusercontent.com",
+      },
+    ],
   },
 };
 

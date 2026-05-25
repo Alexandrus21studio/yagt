@@ -10,42 +10,17 @@ interface AIPanelProps {
 
 export function AIPanel({ title, children, loading }: AIPanelProps) {
   return (
-    <div
-      style={{
-        background: "var(--bg-secondary)",
-        border: "1px solid var(--border-color)",
-        borderRadius: "8px",
-        overflow: "hidden",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          padding: "12px 16px",
-          borderBottom: "1px solid var(--border-color)",
-          background: "var(--bg-tertiary)",
-        }}
-      >
-        <Sparkles size={16} style={{ color: "var(--accent)" }} />
-        <span style={{ fontSize: "14px", fontWeight: 600 }}>{title}</span>
+    <div className="card card-bordered card-compact bg-base-200 overflow-hidden">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-base-300 bg-base-300">
+        <Sparkles size={16} className="text-primary" />
+        <span className="text-sm font-semibold">{title}</span>
         {loading && (
-          <span
-            style={{
-              marginLeft: "auto",
-              fontSize: "12px",
-              color: "var(--accent)",
-              animation: "pulse 1.5s infinite",
-            }}
-          >
+          <span className="ml-auto text-xs text-primary animate-pulse">
             Generating...
           </span>
         )}
       </div>
-      <div style={{ padding: "16px", fontSize: "14px", lineHeight: 1.6 }}>
-        {children}
-      </div>
+      <div className="card-body text-sm leading-relaxed">{children}</div>
     </div>
   );
 }

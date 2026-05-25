@@ -15,18 +15,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside
-      style={{
-        width: "240px",
-        minWidth: "240px",
-        background: "var(--bg-secondary)",
-        borderRight: "1px solid var(--border-color)",
-        padding: "16px 12px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "4px",
-      }}
-    >
+    <aside className="w-60 min-w-[240px] bg-base-200 border-r border-base-300 py-4 px-3 flex flex-col gap-1">
       {navItems.map((item) => {
         const isActive = pathname === item.href;
         const Icon = item.icon;
@@ -34,19 +23,11 @@ export function Sidebar() {
           <Link
             key={item.label}
             href={item.href}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "12px",
-              padding: "8px 12px",
-              borderRadius: "6px",
-              fontSize: "14px",
-              fontWeight: 500,
-              color: isActive ? "var(--text-primary)" : "var(--text-secondary)",
-              background: isActive ? "var(--bg-tertiary)" : "transparent",
-              textDecoration: "none",
-              transition: "background 0.15s",
-            }}
+            className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium no-underline transition-colors ${
+              isActive
+                ? "text-base-content bg-base-300"
+                : "text-base-content/70 bg-transparent hover:bg-base-300"
+            }`}
           >
             <Icon size={18} />
             {item.label}
