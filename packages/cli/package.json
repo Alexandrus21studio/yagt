@@ -1,0 +1,22 @@
+{
+  "name": "@yagt/cli",
+  "version": "0.1.0",
+  "description": "Yet Another Git Tool CLI",
+  "main": "src/index.js",
+  "bin": {
+    "yagt": "./src/index.js",
+    "yg": "./src/index.js"
+  },
+  "scripts": {
+    "test": "echo \"Tests coming soon\""
+  },
+  "keywords": ["git", "cli", "yagt"],
+  "author": "Alexandrus21 Studio",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^11.1.0",
+    "inquirer": "^8.2.6",
+    "ora": "^5.4.1"
+  }
+}

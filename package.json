@@ -1,0 +1,24 @@
+{
+  "name": "yagt",
+  "version": "0.1.0",
+  "description": "Yet Another Git Tool - GitHub alternative GUI & CLI",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "cli": "node packages/cli/src/index.js",
+    "web": "cd packages/web && npm run dev",
+    "build": "cd packages/web && npm run build",
+    "lint": "cd packages/web && npm run lint"
+  },
+  "keywords": [
+    "git",
+    "cli",
+    "github",
+    "alternative",
+    "gui"
+  ],
+  "author": "Alexandrus21 Studio",
+  "license": "MIT"
+}
