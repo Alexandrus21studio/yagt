@@ -1,1 +1,7 @@
+node_modules/
 .omc/
+.env.local
+.next/
+out/
+dist/
+*.log
