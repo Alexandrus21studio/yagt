@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useUser, SignInButton } from "@clerk/nextjs";
-import { GitBranch, Star, GitFork, AlertCircle, Clock, Plus, Search, Sparkles, BookOpen } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { GitBranch, Star, GitFork, AlertCircle, Clock, Plus, Search, Sparkles, BookOpen, X } from "lucide-react";
 import Link from "next/link";
 
 interface GHRepo {
@@ -52,6 +53,13 @@ interface TrendingRepo {
 
 export default function Dashboard() {
   const { user, isLoaded, isSignedIn } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("new") === "repo") {
+      setShowNewRepo(true);
+    }
+  }, []);
   const [repos, setRepos] = useState<GHRepo[]>([]);
   const [filtered, setFiltered] = useState<GHRepo[]>([]);
   const [loading, setLoading] = useState(false);
@@ -62,6 +70,40 @@ export default function Dashboard() {
   const [sort, setSort] = useState("updated");
   const [trending, setTrending] = useState<TrendingRepo[]>([]);
   const [trendingLoading, setTrendingLoading] = useState(false);
+
+  // New repo modal
+  const [showNewRepo, setShowNewRepo] = useState(false);
+  const [newRepoName, setNewRepoName] = useState("");
+  const [newRepoDesc, setNewRepoDesc] = useState("");
+  const [newRepoPrivate, setNewRepoPrivate] = useState(false);
+  const [newRepoInit, setNewRepoInit] = useState(true);
+  const [creatingRepo, setCreatingRepo] = useState(false);
+  const [createRepoError, setCreateRepoError] = useState<string | null>(null);
+
+  async function createRepo() {
+    if (!newRepoName.trim()) return;
+    setCreatingRepo(true);
+    setCreateRepoError(null);
+    try {
+      const res = await fetch("/api/github/user/repos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newRepoName.trim(), description: newRepoDesc, private: newRepoPrivate, auto_init: newRepoInit }),
+      });
+      const data = await res.json();
+      if (data.full_name) {
+        setShowNewRepo(false);
+        setNewRepoName(""); setNewRepoDesc(""); setNewRepoPrivate(false); setNewRepoInit(true);
+        router.push(`/repo/${data.owner.login}/${data.name}`);
+      } else {
+        setCreateRepoError(data.message ?? "Failed to create repository");
+      }
+    } catch {
+      setCreateRepoError("Network error");
+    } finally {
+      setCreatingRepo(false);
+    }
+  }
 
   useEffect(() => {
     setTrendingLoading(true);
@@ -248,9 +290,9 @@ export default function Dashboard() {
             <option value="name">Name</option>
             <option value="stars">Stars</option>
           </select>
-          <Link href="#" style={{ background: "#238636", border: "1px solid rgba(240,246,252,0.1)", borderRadius: 6, color: "#fff", padding: "5px 16px", fontSize: 13, fontWeight: 600, textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
+          <button onClick={() => setShowNewRepo(true)} style={{ background: "#238636", border: "1px solid rgba(240,246,252,0.1)", borderRadius: 6, color: "#fff", padding: "5px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
             <Plus size={14} /> New
-          </Link>
+          </button>
         </div>
 
         {error && (
@@ -443,6 +485,65 @@ export default function Dashboard() {
       </div>
 
       <style>{`@media(max-width:767px){.gh-dashboard{grid-template-columns:1fr!important;}}`}</style>
+
+      {/* New Repo Modal */}
+      {showNewRepo && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-base-100 border border-base-300 rounded-t-2xl sm:rounded-xl w-full sm:max-w-md flex flex-col shadow-2xl">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-base-300">
+              <h2 className="font-semibold text-sm">Create a new repository</h2>
+              <button className="btn btn-ghost btn-xs btn-circle" onClick={() => { setShowNewRepo(false); setCreateRepoError(null); }}>
+                <X size={14} />
+              </button>
+            </div>
+            <div className="flex flex-col gap-3 p-4">
+              <div>
+                <label className="text-xs text-base-content/50 mb-1 block">Repository name <span className="text-error">*</span></label>
+                <input
+                  type="text"
+                  className="input input-bordered input-sm w-full bg-base-100"
+                  placeholder="my-awesome-project"
+                  value={newRepoName}
+                  onChange={(e) => setNewRepoName(e.target.value.replace(/\s+/g, "-"))}
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="text-xs text-base-content/50 mb-1 block">Description</label>
+                <input
+                  type="text"
+                  className="input input-bordered input-sm w-full bg-base-100"
+                  placeholder="Short description (optional)"
+                  value={newRepoDesc}
+                  onChange={(e) => setNewRepoDesc(e.target.value)}
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="flex items-center gap-2 cursor-pointer text-sm">
+                  <input type="radio" className="radio radio-sm" checked={!newRepoPrivate} onChange={() => setNewRepoPrivate(false)} />
+                  <span><span className="font-medium">Public</span> <span className="text-base-content/40 text-xs">— Anyone can see this repository</span></span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer text-sm">
+                  <input type="radio" className="radio radio-sm" checked={newRepoPrivate} onChange={() => setNewRepoPrivate(true)} />
+                  <span><span className="font-medium">Private</span> <span className="text-base-content/40 text-xs">— Only you can see this repository</span></span>
+                </label>
+              </div>
+              <label className="flex items-center gap-2 cursor-pointer text-sm border-t border-base-300 pt-2">
+                <input type="checkbox" className="checkbox checkbox-sm" checked={newRepoInit} onChange={(e) => setNewRepoInit(e.target.checked)} />
+                Initialize with a README
+              </label>
+              {createRepoError && <div className="alert alert-error text-xs py-2">{createRepoError}</div>}
+            </div>
+            <div className="flex gap-2 justify-end px-4 pb-4">
+              <button className="btn btn-sm btn-ghost" onClick={() => { setShowNewRepo(false); setCreateRepoError(null); }}>Cancel</button>
+              <button className="btn btn-sm btn-success" onClick={createRepo} disabled={creatingRepo || !newRepoName.trim()}>
+                {creatingRepo && <span className="loading loading-spinner loading-xs" />}
+                Create repository
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

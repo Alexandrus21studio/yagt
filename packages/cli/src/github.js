@@ -144,6 +144,59 @@ async function listUserRepos(limit = 30) {
   return r.data;
 }
 
+async function getBranches(owner, repo) {
+  const r = await ghRequest(`/repos/${owner}/${repo}/branches?per_page=100`);
+  return r.data;
+}
+
+async function createPullRequest(owner, repo, { title, body, head, base, draft = false }) {
+  const r = await ghRequest(`/repos/${owner}/${repo}/pulls`, {
+    method: 'POST',
+    body: { title, body, head, base, draft },
+  });
+  return r.data;
+}
+
+async function updateIssueState(owner, repo, number, state) {
+  const r = await ghRequest(`/repos/${owner}/${repo}/issues/${number}`, {
+    method: 'PATCH',
+    body: { state },
+  });
+  return r.data;
+}
+
+async function commentOnIssue(owner, repo, number, body) {
+  const r = await ghRequest(`/repos/${owner}/${repo}/issues/${number}/comments`, {
+    method: 'POST',
+    body: { body },
+  });
+  return r.data;
+}
+
+async function mergePullRequest(owner, repo, number, mergeMethod = 'merge') {
+  const r = await ghRequest(`/repos/${owner}/${repo}/pulls/${number}/merge`, {
+    method: 'PUT',
+    body: { merge_method: mergeMethod },
+  });
+  return r.data;
+}
+
+async function updatePullState(owner, repo, number, state) {
+  const r = await ghRequest(`/repos/${owner}/${repo}/pulls/${number}`, {
+    method: 'PATCH',
+    body: { state },
+  });
+  return r.data;
+}
+
+async function createRepo({ name, description = '', isPrivate = false, autoInit = true }) {
+  const r = await ghRequest('/user/repos', {
+    method: 'POST',
+    body: { name, description, private: isPrivate, auto_init: autoInit },
+  });
+  return r.data;
+}
+
 // Parse "owner/repo" or a GitHub URL into { owner, repo }
 function parseRepoArg(arg) {
   if (!arg) return null;
@@ -176,9 +229,12 @@ module.exports = {
   loadConfig, getToken,
   getRepo, getRepoContents, getCommits,
   getIssues, getIssue, getIssueComments, createIssue,
-  getPulls, getPull,
+  updateIssueState, commentOnIssue,
+  getPulls, getPull, createPullRequest, mergePullRequest, updatePullState,
+  getBranches,
   getReadme, forkRepo,
   starRepo, unstarRepo, isStarred,
   searchRepos, getAuthUser, getRateLimit, listUserRepos,
+  createRepo,
   parseRepoArg, resolveRepo,
 };

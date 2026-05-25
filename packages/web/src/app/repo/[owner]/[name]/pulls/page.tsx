@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { GitPullRequest, CheckCircle, XCircle, Search, MessageSquare, Clock } from "lucide-react";
+import { GitPullRequest, CheckCircle, XCircle, Search, MessageSquare, X, GitBranch } from "lucide-react";
 import Link from "next/link";
 
 interface GHLabel { name: string; color: string }
@@ -48,7 +48,19 @@ export default function PullsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  // New PR modal
+  const [showModal, setShowModal] = useState(false);
+  const [branches, setBranches] = useState<string[]>([]);
+  const [branchesLoading, setBranchesLoading] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [newBody, setNewBody] = useState("");
+  const [newHead, setNewHead] = useState("");
+  const [newBase, setNewBase] = useState("");
+  const [newDraft, setNewDraft] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+
+  function loadPRs() {
     setLoading(true);
     setError(null);
     fetch(`/api/github/repos/${owner}/${name}/pulls?state=${filter}&per_page=50`)
@@ -59,7 +71,53 @@ export default function PullsPage() {
       })
       .catch(() => setError("Network error"))
       .finally(() => setLoading(false));
-  }, [owner, name, filter]);
+  }
+
+  useEffect(() => { loadPRs(); }, [owner, name, filter]);
+
+  async function openModal() {
+    setShowModal(true);
+    setBranchesLoading(true);
+    try {
+      const res = await fetch(`/api/github/repos/${owner}/${name}/branches?per_page=100`);
+      const data = await res.json();
+      const names: string[] = Array.isArray(data) ? data.map((b: { name: string }) => b.name) : [];
+      setBranches(names);
+      const defaultBase = names.includes("main") ? "main" : names.includes("master") ? "master" : names[0] ?? "";
+      setNewBase(defaultBase);
+      setNewHead(names.find((b) => b !== defaultBase) ?? names[0] ?? "");
+    } catch {
+      setBranches([]);
+    } finally {
+      setBranchesLoading(false);
+    }
+  }
+
+  async function createPR() {
+    if (!newTitle.trim() || !newHead || !newBase) return;
+    setCreating(true);
+    setCreateError(null);
+    try {
+      const res = await fetch(`/api/github/repos/${owner}/${name}/pulls`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: newTitle, body: newBody, head: newHead, base: newBase, draft: newDraft }),
+      });
+      const data = await res.json();
+      if (data.number) {
+        setPRs((prev) => [data, ...prev]);
+        setShowModal(false);
+        setNewTitle(""); setNewBody(""); setNewDraft(false);
+        setFilter("open");
+      } else {
+        setCreateError(data.message ?? "Failed to create pull request");
+      }
+    } catch {
+      setCreateError("Network error");
+    } finally {
+      setCreating(false);
+    }
+  }
 
   const filtered = prs.filter((p) =>
     !search || p.title.toLowerCase().includes(search.toLowerCase())
@@ -74,7 +132,7 @@ export default function PullsPage() {
           <Link href={`/repo/${owner}/${name}`} className="text-primary">{owner}/{name}</Link>
           <span className="text-base-content/40 font-normal"> · Pull Requests</span>
         </h1>
-        <button className="btn btn-sm btn-primary">New pull request</button>
+        <button className="btn btn-sm btn-primary" onClick={openModal}>New pull request</button>
       </div>
 
       {/* Tabs */}
@@ -142,10 +200,13 @@ export default function PullsPage() {
               <div className="pt-0.5 shrink-0"><PRIcon pr={pr} /></div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-start gap-2 flex-wrap">
-                  <span className="font-medium text-sm text-base-content leading-snug flex-1">
+                  <Link
+                    href={`/repo/${owner}/${name}/pulls/${pr.number}`}
+                    className="font-medium text-sm text-base-content leading-snug flex-1 hover:text-primary transition-colors"
+                  >
                     {pr.title}
                     {pr.draft && <span className="badge badge-ghost badge-xs ml-2 align-middle">Draft</span>}
-                  </span>
+                  </Link>
                   <div className="flex items-center gap-1">
                     {pr.labels.map((l) => (
                       <span key={l.name} className="badge badge-sm font-normal"
@@ -175,6 +236,88 @@ export default function PullsPage() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* New PR Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-base-100 border border-base-300 rounded-t-2xl sm:rounded-xl w-full sm:max-w-lg flex flex-col shadow-2xl">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-base-300">
+              <h2 className="font-semibold text-sm">New Pull Request</h2>
+              <button className="btn btn-ghost btn-xs btn-circle" onClick={() => { setShowModal(false); setCreateError(null); }}>
+                <X size={14} />
+              </button>
+            </div>
+            <div className="flex flex-col gap-3 p-4 overflow-y-auto">
+              {branchesLoading ? (
+                <div className="flex items-center gap-2 text-sm text-base-content/40 py-4 justify-center">
+                  <span className="loading loading-spinner loading-xs" /> Loading branches...
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-xs text-base-content/50 mb-1 block flex items-center gap-1">
+                        <GitBranch size={11} /> Base branch
+                      </label>
+                      <select className="select select-bordered select-sm w-full bg-base-100"
+                        value={newBase} onChange={(e) => setNewBase(e.target.value)}>
+                        {branches.map((b) => <option key={b}>{b}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs text-base-content/50 mb-1 block flex items-center gap-1">
+                        <GitBranch size={11} /> Head branch
+                      </label>
+                      <select className="select select-bordered select-sm w-full bg-base-100"
+                        value={newHead} onChange={(e) => setNewHead(e.target.value)}>
+                        {branches.map((b) => <option key={b}>{b}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs text-base-content/50 mb-1 block">Title <span className="text-error">*</span></label>
+                    <input
+                      type="text"
+                      className="input input-bordered input-sm w-full bg-base-100"
+                      placeholder="Pull request title"
+                      value={newTitle}
+                      onChange={(e) => setNewTitle(e.target.value)}
+                      autoFocus
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-base-content/50 mb-1 block">Description</label>
+                    <textarea
+                      className="textarea textarea-bordered w-full bg-base-100 text-sm resize-none"
+                      rows={4}
+                      placeholder="Describe your changes... (markdown supported)"
+                      value={newBody}
+                      onChange={(e) => setNewBody(e.target.value)}
+                    />
+                  </div>
+                  <label className="flex items-center gap-2 cursor-pointer text-sm">
+                    <input type="checkbox" className="checkbox checkbox-sm"
+                      checked={newDraft} onChange={(e) => setNewDraft(e.target.checked)} />
+                    Create as draft
+                  </label>
+                </>
+              )}
+              {createError && <div className="alert alert-error text-xs py-2">{createError}</div>}
+            </div>
+            <div className="flex gap-2 justify-end px-4 pb-4 border-t border-base-300 pt-3">
+              <button className="btn btn-sm btn-ghost" onClick={() => { setShowModal(false); setCreateError(null); }}>Cancel</button>
+              <button
+                className="btn btn-sm btn-primary"
+                onClick={createPR}
+                disabled={creating || !newTitle.trim() || !newHead || !newBase || branchesLoading}
+              >
+                {creating && <span className="loading loading-spinner loading-xs" />}
+                Create pull request
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

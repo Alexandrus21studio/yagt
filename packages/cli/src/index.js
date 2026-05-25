@@ -37,6 +37,65 @@ function isGitRepo() {
   return fs.existsSync(path.join(process.cwd(), '.git'));
 }
 
+// ── Progress bar for git operations ──────────────────────────────────────────
+
+function renderProgressBar(label, pct, extra = '') {
+  const W = 24;
+  const filled = Math.round((pct / 100) * W);
+  const bar = chalk.hex('#7c3aed')('█'.repeat(filled)) + chalk.dim('░'.repeat(W - filled));
+  const pctStr = chalk.bold(`${String(Math.round(pct)).padStart(3)}%`);
+  const labelStr = chalk.cyan(label.padEnd(22));
+  process.stderr.write(`\r  ${labelStr}  ${bar}  ${pctStr}  ${chalk.dim(extra)}    `);
+}
+
+function gitWithProgress(args, opts = {}) {
+  return new Promise((resolve, reject) => {
+    // --progress forces git to emit progress to stderr even when piped
+    const gitArgs = (args + ' --progress').trim().split(/\s+/);
+    const proc = spawn('git', gitArgs, {
+      cwd: opts.cwd || process.cwd(),
+      stdio: ['inherit', 'inherit', 'pipe'],
+    });
+
+    let lastLabel = '';
+    let buf = '';
+
+    proc.stderr.on('data', (chunk) => {
+      buf += chunk.toString();
+      // Process all complete lines (git uses \r for progress, \n for messages)
+      const parts = buf.split(/[\r\n]/);
+      buf = parts.pop() ?? '';
+
+      for (const line of parts) {
+        const clean = line.replace(/\x1b\[[0-9;]*m/g, '').trim();
+        if (!clean) continue;
+
+        // Match: "Receiving objects:  60% (60/100), 1.23 MiB | 2.34 MiB/s"
+        const m = clean.match(/^([A-Za-z ]+?):\s+(\d+)%\s*\([\d/]+\)(?:,\s*(.+))?/);
+        if (m) {
+          const label = m[1].trim();
+          const pct = parseInt(m[2]);
+          const extra = m[3] ?? '';
+          lastLabel = label;
+          renderProgressBar(label, pct, extra);
+        } else if (clean && !clean.startsWith('remote:') && !clean.includes('done')) {
+          // Non-progress lines: print below
+          if (lastLabel) { process.stderr.write('\n'); lastLabel = ''; }
+          process.stderr.write(`  ${chalk.dim(clean)}\n`);
+        }
+      }
+    });
+
+    proc.on('close', (code) => {
+      if (lastLabel) process.stderr.write('\n');
+      if (code === 0) resolve();
+      else reject(new Error(`git exited with code ${code}`));
+    });
+
+    proc.on('error', reject);
+  });
+}
+
 function ensureRepo() {
   if (!isGitRepo()) {
     console.error(chalk.red('✖ Not a git repository. Run `yagt init` first.'));
@@ -233,13 +292,18 @@ program
   .argument('[remote]', 'remote', 'origin')
   .argument('[branch]', 'branch')
   .option('-u, --upstream', 'set upstream tracking')
-  .action((remote, branch, options) => {
+  .action(async (remote, branch, options) => {
     ensureRepo();
     const current = runGit('branch --show-current', { silent: true, ignoreError: true });
     const target = branch || current;
-    const spinner = ora(`Pushing to ${remote}/${target}...`).start();
-    runGit(`push ${options.upstream ? '-u ' : ''}${remote} ${target}`, { silent: false });
-    spinner.succeed(chalk.green(`Pushed → ${remote}/${target}`));
+    console.log(chalk.bold(`\n  Pushing to ${chalk.cyan(remote + '/' + target)}...\n`));
+    try {
+      await gitWithProgress(`push ${options.upstream ? '-u ' : ''}${remote} ${target}`);
+      console.log('\n  ' + chalk.green('✔') + chalk.bold(` Pushed → ${remote}/${target}`));
+    } catch {
+      console.log('\n  ' + chalk.red('✖ Push failed'));
+      process.exit(1);
+    }
   });
 
 program
@@ -247,12 +311,18 @@ program
   .description('Pull from remote')
   .argument('[remote]', 'remote', 'origin')
   .argument('[branch]', 'branch')
-  .action((remote, branch) => {
+  .action(async (remote, branch) => {
     ensureRepo();
     const current = runGit('branch --show-current', { silent: true, ignoreError: true });
-    const spinner = ora(`Pulling from ${remote}/${branch || current}...`).start();
-    runGit(`pull ${remote} ${branch || current}`, { silent: false });
-    spinner.succeed(chalk.green('Pull complete'));
+    const target = branch || current;
+    console.log(chalk.bold(`\n  Pulling from ${chalk.cyan(remote + '/' + target)}...\n`));
+    try {
+      await gitWithProgress(`pull ${remote} ${target}`);
+      console.log('\n  ' + chalk.green('✔') + chalk.bold(' Pull complete'));
+    } catch {
+      console.log('\n  ' + chalk.red('✖ Pull failed'));
+      process.exit(1);
+    }
   });
 
 // ── GitHub: clone ─────────────────────────────────────────────────────────────
@@ -265,7 +335,7 @@ program
   .option('-b, --branch <branch>', 'clone specific branch')
   .option('--ssh', 'use SSH URL instead of HTTPS')
   .option('--depth <n>', 'shallow clone with depth')
-  .action((repo, directory, options) => {
+  .action(async (repo, directory, options) => {
     header();
     let url = repo;
 
@@ -281,15 +351,15 @@ program
     const branchFlag = options.branch ? `-b ${options.branch} ` : '';
     const depthFlag = options.depth ? `--depth ${options.depth} ` : '';
     const dirArg = directory ? ` ${directory}` : '';
-    const spinner = ora(`Cloning ${chalk.cyan(url)}...`).start();
 
+    console.log(chalk.bold(`\n  Cloning ${chalk.cyan(url)}...\n`));
     try {
-      runGit(`clone ${branchFlag}${depthFlag}${url}${dirArg}`, { silent: false });
-      spinner.succeed(chalk.green('Clone complete'));
+      await gitWithProgress(`clone ${branchFlag}${depthFlag}${url}${dirArg}`);
       const target = directory || (parsed ? parsed.repo : path.basename(url, '.git'));
+      console.log('\n  ' + chalk.green('✔') + chalk.bold(' Clone complete'));
       console.log(chalk.dim(`  cd ${path.resolve(target)}`));
     } catch {
-      spinner.fail('Clone failed');
+      console.log('\n  ' + chalk.red('✖ Clone failed'));
     }
   });
 
@@ -350,9 +420,14 @@ program
   .option('--closed', 'show closed issues')
   .option('--ai', 'analyze issue with AI')
   .option('--new', 'create a new issue')
+  .option('--comment <text>', 'add a comment to the issue')
+  .option('--close', 'close the issue')
+  .option('--reopen', 'reopen the issue')
   .option('-n, --limit <n>', 'max issues to show', '20')
   .action(async (number, repoArg, options) => {
     header();
+    // If number looks like owner/repo (contains /), treat it as repoArg
+    if (number && number.includes('/') && !repoArg) { repoArg = number; number = undefined; }
     const parsed = gh.resolveRepo(repoArg);
     if (!parsed) { console.error(chalk.red('Could not resolve repository.')); process.exit(1); }
     const { owner, repo } = parsed;
@@ -371,6 +446,31 @@ program
         const issue = await gh.createIssue(owner, repo, answers.title, answers.body, labels);
         spinner.succeed(chalk.green(`Issue #${issue.number} created`));
         console.log(chalk.dim(`  ${issue.html_url}`));
+      } catch (err) { spinner.fail(chalk.red(err.message)); }
+      return;
+    }
+
+    // Close / reopen issue
+    if (number && (options.close || options.reopen)) {
+      requireGithubToken();
+      const newState = options.close ? 'closed' : 'open';
+      const spinner = ora(`${options.close ? 'Closing' : 'Reopening'} issue #${number}...`).start();
+      try {
+        const issue = await gh.updateIssueState(owner, repo, number, newState);
+        spinner.succeed(chalk.green(`Issue #${issue.number} is now ${issue.state}`));
+        console.log(chalk.dim(`  ${issue.html_url}`));
+      } catch (err) { spinner.fail(chalk.red(err.message)); }
+      return;
+    }
+
+    // Comment on issue
+    if (number && options.comment) {
+      requireGithubToken();
+      const spinner = ora(`Adding comment to issue #${number}...`).start();
+      try {
+        const comment = await gh.commentOnIssue(owner, repo, number, options.comment);
+        spinner.succeed(chalk.green(`Comment added to issue #${number}`));
+        console.log(chalk.dim(`  ${comment.html_url}`));
       } catch (err) { spinner.fail(chalk.red(err.message)); }
       return;
     }
@@ -441,12 +541,80 @@ program
   .option('-l, --list', 'list open PRs')
   .option('--closed', 'show closed/merged PRs')
   .option('--ai', 'AI review the PR diff')
+  .option('--new', 'create a new pull request')
+  .option('--merge', 'merge the pull request')
+  .option('--close', 'close the pull request')
+  .option('--reopen', 'reopen the pull request')
   .option('-n, --limit <n>', 'max PRs', '20')
   .action(async (number, repoArg, options) => {
     header();
+    if (number && number.includes('/') && !repoArg) { repoArg = number; number = undefined; }
     const parsed = gh.resolveRepo(repoArg);
     if (!parsed) { console.error(chalk.red('Could not resolve repository.')); process.exit(1); }
     const { owner, repo } = parsed;
+
+    // Create new PR interactively
+    if (options.new) {
+      requireGithubToken();
+      const spinner = ora('Fetching branches...').start();
+      let branches = [];
+      try {
+        const data = await gh.getBranches(owner, repo);
+        branches = Array.isArray(data) ? data.map(b => b.name) : [];
+        spinner.stop();
+      } catch { spinner.stop(); }
+
+      let currentBranch = '';
+      try { currentBranch = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf-8', stdio: 'pipe' }).trim(); } catch { }
+
+      const answers = await inquirer.prompt([
+        { type: 'input', name: 'title', message: 'PR title:', validate: v => v ? true : 'Required' },
+        { type: 'input', name: 'body', message: 'Description (optional):' },
+        {
+          type: 'list', name: 'head', message: 'Head branch (your changes):',
+          choices: branches.length ? branches : [currentBranch || 'main'],
+          default: currentBranch,
+        },
+        {
+          type: 'list', name: 'base', message: 'Base branch (merge into):',
+          choices: branches.length ? branches : ['main'],
+          default: branches.includes('main') ? 'main' : branches[0],
+        },
+        { type: 'confirm', name: 'draft', message: 'Create as draft?', default: false },
+      ]);
+
+      const prSpinner = ora('Creating pull request...').start();
+      try {
+        const pr = await gh.createPullRequest(owner, repo, answers);
+        prSpinner.succeed(chalk.green(`PR #${pr.number} created: ${pr.title}`));
+        console.log(chalk.dim(`  ${pr.html_url}`));
+      } catch (err) { prSpinner.fail(chalk.red(err.message)); }
+      return;
+    }
+
+    // Merge PR
+    if (number && options.merge) {
+      requireGithubToken();
+      const spinner = ora(`Merging PR #${number}...`).start();
+      try {
+        const result = await gh.mergePullRequest(owner, repo, number);
+        spinner.succeed(chalk.green(result.message || `PR #${number} merged`));
+      } catch (err) { spinner.fail(chalk.red(err.message)); }
+      return;
+    }
+
+    // Close / reopen PR
+    if (number && (options.close || options.reopen)) {
+      requireGithubToken();
+      const newState = options.close ? 'closed' : 'open';
+      const spinner = ora(`${options.close ? 'Closing' : 'Reopening'} PR #${number}...`).start();
+      try {
+        const pr = await gh.updatePullState(owner, repo, number, newState);
+        spinner.succeed(chalk.green(`PR #${pr.number} is now ${pr.state}`));
+        console.log(chalk.dim(`  ${pr.html_url}`));
+      } catch (err) { spinner.fail(chalk.red(err.message)); }
+      return;
+    }
 
     if (number && !options.list) {
       const spinner = ora(`Fetching PR #${number}...`).start();
@@ -615,6 +783,12 @@ program
     try {
       const user = await gh.getAuthUser();
       spinner.stop();
+      if (!user.login) {
+        console.log(chalk.red('✖ Not authenticated. ' + (user.message || '')));
+        console.log(chalk.dim('  Run: yagt config --github-token <token>'));
+        console.log(chalk.dim('  Or set GITHUB_TOKEN environment variable'));
+        return;
+      }
       console.log(`${chalk.bold(user.name || user.login)} ${chalk.dim('@' + user.login)}`);
       if (user.bio) console.log(chalk.dim(user.bio));
       console.log(`  ${chalk.yellow('★')} ${user.public_repos} repos  · ${user.followers} followers · ${user.following} following`);
@@ -883,5 +1057,50 @@ if (process.argv.length === 2) {
   header();
   program.help();
 }
+
+// ── Interactive TUI ───────────────────────────────────────────────────────────
+
+program
+  .command('ui')
+  .description('Launch interactive tabbed TUI (Repos / Issues / PRs / Commits / AI)')
+  .action(() => {
+    require('./tui');
+  });
+
+// ── GitHub: new repo ──────────────────────────────────────────────────────────
+
+program
+  .command('new')
+  .description('Create a new GitHub repository')
+  .action(async () => {
+    header();
+    requireGithubToken();
+    const answers = await inquirer.prompt([
+      { type: 'input', name: 'name', message: 'Repository name:', validate: v => v ? true : 'Required' },
+      { type: 'input', name: 'description', message: 'Description (optional):' },
+      { type: 'list', name: 'visibility', message: 'Visibility:', choices: ['public', 'private'], default: 'public' },
+      { type: 'confirm', name: 'autoInit', message: 'Initialize with README?', default: true },
+      { type: 'confirm', name: 'clone', message: 'Clone locally after creating?', default: false },
+    ]);
+    const spinner = ora('Creating repository...').start();
+    try {
+      const newRepo = await gh.createRepo({
+        name: answers.name,
+        description: answers.description,
+        isPrivate: answers.visibility === 'private',
+        autoInit: answers.autoInit,
+      });
+      spinner.succeed(chalk.green(`Repository created: ${newRepo.full_name}`));
+      console.log(chalk.dim(`  ${newRepo.html_url}`));
+      if (answers.clone) {
+        console.log('');
+        const cloneSpinner = ora('Cloning...').start();
+        try {
+          execSync(`git clone ${newRepo.clone_url}`, { stdio: 'inherit' });
+          cloneSpinner.succeed(chalk.green(`Cloned into ./${answers.name}`));
+        } catch { cloneSpinner.fail(chalk.red('Clone failed. Clone manually:')); console.log(chalk.dim(`  git clone ${newRepo.clone_url}`)); }
+      }
+    } catch (err) { spinner.fail(chalk.red(err.message)); }
+  });
 
 program.parse(process.argv);

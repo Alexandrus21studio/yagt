@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { AlertCircle, CheckCircle, Clock, Search, Tag, MessageSquare } from "lucide-react";
+import { AlertCircle, CheckCircle, Search, Tag, MessageSquare, X } from "lucide-react";
 import Link from "next/link";
 
 interface GHLabel { name: string; color: string }
@@ -38,7 +38,15 @@ export default function IssuesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  // New issue modal state
+  const [showModal, setShowModal] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [newBody, setNewBody] = useState("");
+  const [newLabels, setNewLabels] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+
+  function loadIssues() {
     setLoading(true);
     setError(null);
     fetch(`/api/github/repos/${owner}/${name}/issues?state=${filter}&per_page=50`)
@@ -49,7 +57,38 @@ export default function IssuesPage() {
       })
       .catch(() => setError("Network error"))
       .finally(() => setLoading(false));
-  }, [owner, name, filter]);
+  }
+
+  useEffect(() => { loadIssues(); }, [owner, name, filter]);
+
+  async function createIssue() {
+    if (!newTitle.trim()) return;
+    setCreating(true);
+    setCreateError(null);
+    try {
+      const labels = newLabels.split(",").map((l) => l.trim()).filter(Boolean);
+      const res = await fetch(`/api/github/repos/${owner}/${name}/issues`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: newTitle, body: newBody, labels }),
+      });
+      const data = await res.json();
+      if (data.number) {
+        setIssues((prev) => [data, ...prev]);
+        setShowModal(false);
+        setNewTitle("");
+        setNewBody("");
+        setNewLabels("");
+        setFilter("open");
+      } else {
+        setCreateError(data.message ?? "Failed to create issue");
+      }
+    } catch {
+      setCreateError("Network error");
+    } finally {
+      setCreating(false);
+    }
+  }
 
   const filtered = issues.filter((i) =>
     !search || i.title.toLowerCase().includes(search.toLowerCase())
@@ -65,7 +104,7 @@ export default function IssuesPage() {
           <Link href={`/repo/${owner}/${name}`} className="text-primary">{owner}/{name}</Link>
           <span className="text-base-content/40 font-normal"> · Issues</span>
         </h1>
-        <button className="btn btn-sm btn-primary">New issue</button>
+        <button className="btn btn-sm btn-primary" onClick={() => setShowModal(true)}>New issue</button>
       </div>
 
       {/* Tabs */}
@@ -96,16 +135,12 @@ export default function IssuesPage() {
           />
         </div>
         <div className="flex gap-1 shrink-0">
-          <button
-            onClick={() => setFilter("open")}
-            className={`btn btn-sm gap-1.5 ${filter === "open" ? "btn-active" : "btn-ghost"}`}
-          >
+          <button onClick={() => setFilter("open")}
+            className={`btn btn-sm gap-1.5 ${filter === "open" ? "btn-active" : "btn-ghost"}`}>
             <AlertCircle size={13} className="text-success" /> {open} Open
           </button>
-          <button
-            onClick={() => setFilter("closed")}
-            className={`btn btn-sm gap-1.5 ${filter === "closed" ? "btn-active" : "btn-ghost"}`}
-          >
+          <button onClick={() => setFilter("closed")}
+            className={`btn btn-sm gap-1.5 ${filter === "closed" ? "btn-active" : "btn-ghost"}`}>
             <CheckCircle size={13} /> {closed} Closed
           </button>
         </div>
@@ -138,19 +173,19 @@ export default function IssuesPage() {
               key={issue.number}
               className={`flex gap-3 px-4 py-3 hover:bg-base-300/50 transition-colors ${i < filtered.length - 1 ? "border-b border-base-300/60" : ""}`}
             >
-              {/* Status icon */}
               <div className="pt-0.5 shrink-0">
                 {issue.state === "open"
                   ? <AlertCircle size={16} className="text-success" />
                   : <CheckCircle size={16} className="text-base-content/30" />}
               </div>
-
-              {/* Content */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-start gap-2 flex-wrap">
-                  <span className="font-medium text-sm text-base-content leading-snug flex-1">
+                  <Link
+                    href={`/repo/${owner}/${name}/issues/${issue.number}`}
+                    className="font-medium text-sm text-base-content leading-snug flex-1 hover:text-primary transition-colors"
+                  >
                     {issue.title}
-                  </span>
+                  </Link>
                   <div className="flex items-center gap-1 flex-wrap">
                     {issue.labels.map((l) => (
                       <span key={l.name} className="badge badge-sm font-normal"
@@ -181,6 +216,65 @@ export default function IssuesPage() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* New Issue Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-base-100 border border-base-300 rounded-t-2xl sm:rounded-xl w-full sm:max-w-lg flex flex-col gap-0 shadow-2xl">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-base-300">
+              <h2 className="font-semibold text-sm">New Issue</h2>
+              <button className="btn btn-ghost btn-xs btn-circle" onClick={() => { setShowModal(false); setCreateError(null); }}>
+                <X size={14} />
+              </button>
+            </div>
+            <div className="flex flex-col gap-3 p-4">
+              <div>
+                <label className="text-xs text-base-content/50 mb-1 block">Title <span className="text-error">*</span></label>
+                <input
+                  type="text"
+                  className="input input-bordered input-sm w-full bg-base-100"
+                  placeholder="Issue title"
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="text-xs text-base-content/50 mb-1 block">Description</label>
+                <textarea
+                  className="textarea textarea-bordered w-full bg-base-100 text-sm resize-none"
+                  rows={5}
+                  placeholder="Describe the issue... (markdown supported)"
+                  value={newBody}
+                  onChange={(e) => setNewBody(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="text-xs text-base-content/50 mb-1 block">Labels</label>
+                <input
+                  type="text"
+                  className="input input-bordered input-sm w-full bg-base-100"
+                  placeholder="bug, enhancement, question (comma-separated)"
+                  value={newLabels}
+                  onChange={(e) => setNewLabels(e.target.value)}
+                />
+              </div>
+              {createError && <div className="alert alert-error text-xs py-2">{createError}</div>}
+            </div>
+            <div className="flex gap-2 justify-end px-4 pb-4">
+              <button className="btn btn-sm btn-ghost" onClick={() => { setShowModal(false); setCreateError(null); }}>Cancel</button>
+              <button
+                className="btn btn-sm btn-primary"
+                onClick={createIssue}
+                disabled={creating || !newTitle.trim()}
+              >
+                {creating && <span className="loading loading-spinner loading-xs" />}
+                Create issue
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

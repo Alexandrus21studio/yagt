@@ -154,10 +154,10 @@ export function Header() {
             {isLoaded && isSignedIn ? (
               <>
                 {/* Create new */}
-                <button style={{ display: "flex", alignItems: "center", gap: 2, background: "rgba(177,186,196,0.12)", border: "1px solid #30363d", borderRadius: 6, color: "#e6edf3", padding: "4px 8px", cursor: "pointer", fontSize: 13 }}>
+                <Link href="/?new=repo" style={{ display: "flex", alignItems: "center", gap: 2, background: "rgba(177,186,196,0.12)", border: "1px solid #30363d", borderRadius: 6, color: "#e6edf3", padding: "4px 8px", cursor: "pointer", fontSize: 13, textDecoration: "none" }}>
                   <Plus size={14} />
                   <ChevronDown size={12} style={{ color: "#8b949e" }} />
-                </button>
+                </Link>
 
                 {/* Notifications */}
                 <button style={{ position: "relative", background: "none", border: "none", color: "#e6edf3", cursor: "pointer", padding: 4, borderRadius: 6 }}>
