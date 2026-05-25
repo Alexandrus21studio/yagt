@@ -9,7 +9,7 @@
 **yagt** is an AI-powered GitHub alternative. This monorepo contains the CLI and the Web GUI.
 
 - **CLI** (`packages/cli`) — AI-powered git client
-- **Web** (`packages/web`) — Next.js web GUI → [Live on Vercel](https://web-eight-nu-52.vercel.app)
+- **Web** (`packages/web`) — Next.js web GUI → [Live on Vercel](https://yagt.vercel.app)
 
 ---
 
@@ -66,7 +66,7 @@ yagt explain "git cherry-pick"
 
 ## 🌐 Web GUI
 
-**Live:** [https://yagt-web.vercel.app](https://yagt-web.vercel.app)
+**Live:** [https://yagt.vercel.app](https://yagt.vercel.app)
 
 ```bash
 cd packages/web
