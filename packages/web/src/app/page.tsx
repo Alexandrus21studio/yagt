@@ -142,7 +142,7 @@ export default function Dashboard() {
   const languages = Array.from(new Set(repos.map((r) => r.language).filter(Boolean))) as string[];
 
   if (!isLoaded) return (
-    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: 200 }}>
+    <div className="flex justify-center items-center h-52">
       <span className="loading loading-spinner loading-lg text-primary" />
     </div>
   );
@@ -150,37 +150,39 @@ export default function Dashboard() {
   if (!isSignedIn) return (
     <div>
       {/* Hero */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 40, alignItems: "center", padding: "48px 0 40px", borderBottom: "1px solid #21262d", marginBottom: 40 }} className="gh-landing-hero">
-        <div>
-          <h1 style={{ fontSize: 52, fontWeight: 300, lineHeight: 1.2, color: "#e6edf3", marginBottom: 20 }}>
+      <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 lg:items-center py-10 lg:py-12 border-b border-base-300 mb-10">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-light leading-tight text-base-content mb-5">
             Build and ship software<br />
-            <span style={{ color: "#58a6ff" }}>with AI superpowers</span>
+            <span className="text-primary">with AI superpowers</span>
           </h1>
-          <p style={{ fontSize: 18, color: "#8b949e", lineHeight: 1.6, marginBottom: 28, maxWidth: 460 }}>
+          <p className="text-base sm:text-lg text-base-content/60 leading-relaxed mb-7 max-w-lg">
             yagt is an AI-powered GitHub client. Browse any repository, ask the AI anything about the code, and get instant answers backed by real data.
           </p>
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+          <div className="flex gap-3 flex-wrap">
             <SignInButton mode="modal">
-              <button style={{ background: "#238636", border: "1px solid rgba(240,246,252,0.1)", borderRadius: 6, color: "#fff", padding: "10px 20px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+              <button className="btn btn-success min-h-[44px]">
                 Sign in with GitHub
               </button>
             </SignInButton>
-            <Link href="/explore" style={{ background: "none", border: "1px solid #30363d", borderRadius: 6, color: "#e6edf3", padding: "10px 20px", fontSize: 14, fontWeight: 500, textDecoration: "none", display: "inline-flex", alignItems: "center" }}>
+            <Link href="/explore" className="btn btn-outline min-h-[44px]">
               Explore repositories
             </Link>
           </div>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <div className="flex flex-col gap-2.5 w-full lg:w-80 shrink-0">
           {[
-            { icon: <Sparkles size={15} style={{ color: "#58a6ff" }} />, title: "AI chat on any repo", desc: "Ask questions about any codebase, get instant answers with full context" },
-            { icon: <BookOpen size={15} style={{ color: "#3fb950" }} />, title: "Real GitHub data", desc: "Browse repos, issues, PRs, commits — all live from the GitHub API" },
-            { icon: <AlertCircle size={15} style={{ color: "#a371f7" }} />, title: "Issue intelligence", desc: "AI analyzes issues, suggests labels, severity, and fix strategies" },
+            { icon: <Sparkles size={15} className="text-primary" />, title: "AI chat on any repo", desc: "Ask questions about any codebase, get instant answers with full context" },
+            { icon: <BookOpen size={15} className="text-success" />, title: "Real GitHub data", desc: "Browse repos, issues, PRs, commits — all live from the GitHub API" },
+            { icon: <AlertCircle size={15} className="text-secondary" />, title: "Issue intelligence", desc: "AI analyzes issues, suggests labels, severity, and fix strategies" },
           ].map((f) => (
-            <div key={f.title} style={{ background: "#161b22", border: "1px solid #30363d", borderRadius: 6, padding: "14px 16px", display: "flex", gap: 12 }}>
-              <div style={{ marginTop: 1, flexShrink: 0 }}>{f.icon}</div>
-              <div>
-                <p style={{ fontWeight: 600, fontSize: 13, marginBottom: 3 }}>{f.title}</p>
-                <p style={{ color: "#8b949e", fontSize: 12, lineHeight: 1.5 }}>{f.desc}</p>
+            <div key={f.title} className="card bg-base-200 border border-base-300">
+              <div className="card-body py-3.5 px-4 flex flex-row gap-3">
+                <div className="mt-0.5 shrink-0">{f.icon}</div>
+                <div>
+                  <p className="font-semibold text-sm mb-0.5">{f.title}</p>
+                  <p className="text-base-content/60 text-xs leading-relaxed">{f.desc}</p>
+                </div>
               </div>
             </div>
           ))}
@@ -189,85 +191,80 @@ export default function Dashboard() {
 
       {/* Trending repos */}
       <div>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-          <h2 style={{ fontSize: 16, fontWeight: 600, color: "#e6edf3" }}>Trending repositories</h2>
-          <Link href="/explore" style={{ fontSize: 13, color: "#58a6ff", textDecoration: "none" }}>Explore more →</Link>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-base-content">Trending repositories</h2>
+          <Link href="/explore" className="text-sm text-primary">Explore more →</Link>
         </div>
 
         {trendingLoading ? (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(6)].map((_, i) => (
-              <div key={i} style={{ background: "#161b22", border: "1px solid #30363d", borderRadius: 6, padding: 16, height: 120 }} className="animate-pulse" />
+              <div key={i} className="card bg-base-200 border border-base-300 h-32 animate-pulse" />
             ))}
           </div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 16 }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {trending.map((repo) => (
-              <div key={repo.id} style={{ background: "#161b22", border: "1px solid #30363d", borderRadius: 6, padding: 16, display: "flex", flexDirection: "column", gap: 10 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <img src={repo.owner.avatar_url} alt="" style={{ width: 20, height: 20, borderRadius: "50%", border: "1px solid #30363d" }} />
-                  <Link href={`/repo/${repo.owner.login}/${repo.name}`}
-                    style={{ color: "#58a6ff", fontWeight: 600, fontSize: 14, textDecoration: "none" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
-                    onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
-                  >
-                    {repo.full_name}
-                  </Link>
-                </div>
-                {repo.description && (
-                  <p style={{ color: "#8b949e", fontSize: 13, lineHeight: 1.5, flex: 1, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } as React.CSSProperties}>
-                    {repo.description}
-                  </p>
-                )}
-                <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 12, color: "#8b949e" }}>
-                  {repo.language && (
-                    <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                      <span style={{ width: 10, height: 10, borderRadius: "50%", background: langColor[repo.language] ?? "#888", display: "inline-block" }} />
-                      {repo.language}
-                    </span>
+              <div key={repo.id} className="card bg-base-200 border border-base-300">
+                <div className="card-body p-4 gap-2.5">
+                  <div className="flex items-center gap-2.5">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={repo.owner.avatar_url} alt="" className="w-5 h-5 rounded-full border border-base-300" />
+                    <Link href={`/repo/${repo.owner.login}/${repo.name}`} className="text-primary font-semibold text-sm hover:underline truncate">
+                      {repo.full_name}
+                    </Link>
+                  </div>
+                  {repo.description && (
+                    <p className="text-base-content/60 text-sm leading-relaxed flex-1 line-clamp-2">
+                      {repo.description}
+                    </p>
                   )}
-                  <span style={{ display: "flex", alignItems: "center", gap: 3 }}>
-                    <Star size={12} /> {repo.stargazers_count.toLocaleString()}
-                  </span>
-                  <span style={{ display: "flex", alignItems: "center", gap: 3 }}>
-                    <GitFork size={12} /> {repo.forks_count.toLocaleString()}
-                  </span>
-                  <Link href={`/repo/${repo.owner.login}/${repo.name}/ai`}
-                    style={{ marginLeft: "auto", color: "#58a6ff", fontSize: 11, textDecoration: "none", display: "flex", alignItems: "center", gap: 3 }}
-                  >
-                    <Sparkles size={11} /> Ask AI
-                  </Link>
+                  <div className="flex items-center gap-4 text-xs text-base-content/60 flex-wrap">
+                    {repo.language && (
+                      <span className="flex items-center gap-1">
+                        <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ background: langColor[repo.language] ?? "#888" }} />
+                        {repo.language}
+                      </span>
+                    )}
+                    <span className="flex items-center gap-1">
+                      <Star size={12} /> {repo.stargazers_count.toLocaleString()}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <GitFork size={12} /> {repo.forks_count.toLocaleString()}
+                    </span>
+                    <Link href={`/repo/${repo.owner.login}/${repo.name}/ai`} className="ml-auto text-primary text-xs flex items-center gap-1">
+                      <Sparkles size={11} /> Ask AI
+                    </Link>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         )}
       </div>
-
-      <style>{`@media(max-width:767px){.gh-landing-hero{grid-template-columns:1fr!important;}}`}</style>
     </div>
   );
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 296px", gap: 24 }} className="gh-dashboard">
+    <div className="flex flex-col lg:flex-row gap-6">
       {/* Left: repos */}
-      <div>
+      <div className="flex-1 min-w-0">
         {/* Filter bar */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
-          <div style={{ flex: 1, position: "relative", minWidth: 200 }}>
-            <Search size={14} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "#6e7681", pointerEvents: "none" }} />
+        <div className="flex items-center gap-2 mb-4 flex-wrap">
+          <div className="flex-1 relative min-w-[200px]">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50 pointer-events-none" />
             <input
               type="text"
               placeholder="Find a repository..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              style={{ width: "100%", background: "#0d1117", border: "1px solid #30363d", borderRadius: 6, padding: "5px 12px 5px 32px", color: "#e6edf3", fontSize: 13, outline: "none", boxSizing: "border-box" }}
+              className="input input-bordered input-sm w-full pl-8 bg-base-100"
             />
           </div>
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            style={{ background: "#21262d", border: "1px solid #30363d", borderRadius: 6, color: "#e6edf3", padding: "5px 24px 5px 12px", fontSize: 13, cursor: "pointer" }}
+            className="select select-bordered select-sm bg-base-200"
           >
             <option value="all">Type: All</option>
             <option value="public">Public</option>
@@ -276,7 +273,7 @@ export default function Dashboard() {
           <select
             value={langFilter}
             onChange={(e) => setLangFilter(e.target.value)}
-            style={{ background: "#21262d", border: "1px solid #30363d", borderRadius: 6, color: "#e6edf3", padding: "5px 24px 5px 12px", fontSize: 13, cursor: "pointer" }}
+            className="select select-bordered select-sm bg-base-200"
           >
             <option value="all">Language: All</option>
             {languages.map((l) => <option key={l} value={l}>{l}</option>)}
@@ -284,103 +281,95 @@ export default function Dashboard() {
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value)}
-            style={{ background: "#21262d", border: "1px solid #30363d", borderRadius: 6, color: "#e6edf3", padding: "5px 24px 5px 12px", fontSize: 13, cursor: "pointer" }}
+            className="select select-bordered select-sm bg-base-200"
           >
             <option value="updated">Sort: Last updated</option>
             <option value="name">Name</option>
             <option value="stars">Stars</option>
           </select>
-          <button onClick={() => setShowNewRepo(true)} style={{ background: "#238636", border: "1px solid rgba(240,246,252,0.1)", borderRadius: 6, color: "#fff", padding: "5px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
+          <button onClick={() => setShowNewRepo(true)} className="btn btn-sm btn-success gap-1 min-h-[44px] sm:min-h-0">
             <Plus size={14} /> New
           </button>
         </div>
 
         {error && (
-          <div style={{ background: "#161b22", border: "1px solid #f0883e", borderRadius: 6, padding: "12px 16px", color: "#f0883e", marginBottom: 16, fontSize: 13 }}>
+          <div className="alert alert-warning text-sm mb-4">
             <strong>Error:</strong> {error}
-            <p style={{ color: "#8b949e", marginTop: 4 }}>Go to Clerk Dashboard → Social Connections → GitHub → enable with <code>repo</code> scope.</p>
+            <p className="text-base-content/60 mt-1">Go to Clerk Dashboard → Social Connections → GitHub → enable with <code>repo</code> scope.</p>
           </div>
         )}
 
         {loading ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+          <div className="flex flex-col gap-0">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} style={{ padding: "24px 0", borderTop: "1px solid #21262d" }}>
-                <div style={{ height: 16, background: "#21262d", borderRadius: 4, width: 200, marginBottom: 8 }} className="animate-pulse" />
-                <div style={{ height: 13, background: "#21262d", borderRadius: 4, width: 300 }} className="animate-pulse" />
+              <div key={i} className="py-6 border-t border-base-300">
+                <div className="h-4 bg-base-300 rounded w-52 mb-2 animate-pulse" />
+                <div className="h-3 bg-base-300 rounded w-72 animate-pulse" />
               </div>
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "40px 0", color: "#8b949e" }}>
+          <div className="text-center py-10 text-base-content/60">
             {search ? `No repositories matching "${search}"` : "No repositories found."}
           </div>
         ) : (
           <div>
             {filtered.map((repo) => (
-              <div key={repo.id} style={{ padding: "24px 0", borderTop: "1px solid #21262d" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
-                      <Link href={`/repo/${repo.owner.login}/${repo.name}`}
-                        style={{ color: "#58a6ff", fontWeight: 600, fontSize: 14, textDecoration: "none" }}
-                        onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
-                        onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
-                      >
+              <div key={repo.id} className="py-6 border-t border-base-300">
+                <div className="flex justify-between items-start gap-3 flex-wrap">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                      <Link href={`/repo/${repo.owner.login}/${repo.name}`} className="text-primary font-semibold text-sm hover:underline">
                         {repo.full_name}
                       </Link>
-                      <span style={{ border: "1px solid #30363d", borderRadius: "2em", color: "#8b949e", fontSize: 11, fontWeight: 500, padding: "0 7px", lineHeight: "18px" }}>
+                      <span className="badge badge-sm badge-outline text-base-content/60">
                         {repo.private ? "Private" : "Public"}
                       </span>
                     </div>
 
                     {repo.description && (
-                      <p style={{ color: "#8b949e", fontSize: 13, marginBottom: 8, lineHeight: 1.5 }}>{repo.description}</p>
+                      <p className="text-base-content/60 text-sm mb-2 leading-relaxed">{repo.description}</p>
                     )}
 
                     {repo.topics && repo.topics.length > 0 && (
-                      <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 8 }}>
+                      <div className="flex gap-1 flex-wrap mb-2">
                         {repo.topics.slice(0, 5).map((t) => (
-                          <span key={t} style={{ background: "rgba(56,139,253,0.15)", color: "#58a6ff", borderRadius: "2em", fontSize: 11, fontWeight: 500, padding: "2px 10px" }}>{t}</span>
+                          <span key={t} className="badge badge-sm bg-primary/15 text-primary border-none">{t}</span>
                         ))}
                       </div>
                     )}
 
-                    <div style={{ display: "flex", alignItems: "center", gap: 16, color: "#8b949e", fontSize: 12, flexWrap: "wrap" }}>
+                    <div className="flex items-center gap-4 text-base-content/60 text-xs flex-wrap">
                       {repo.language && (
-                        <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                          <span style={{ width: 12, height: 12, borderRadius: "50%", background: langColor[repo.language] ?? "#888", display: "inline-block" }} />
+                        <span className="flex items-center gap-1">
+                          <span className="w-3 h-3 rounded-full inline-block" style={{ background: langColor[repo.language] ?? "#888" }} />
                           {repo.language}
                         </span>
                       )}
                       {repo.stargazers_count > 0 && (
-                        <span style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                        <span className="flex items-center gap-1">
                           <Star size={12} /> {repo.stargazers_count.toLocaleString()}
                         </span>
                       )}
                       {repo.forks_count > 0 && (
-                        <span style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                        <span className="flex items-center gap-1">
                           <GitFork size={12} /> {repo.forks_count.toLocaleString()}
                         </span>
                       )}
                       {repo.open_issues_count > 0 && (
-                        <Link href={`/repo/${repo.owner.login}/${repo.name}/issues`} style={{ display: "flex", alignItems: "center", gap: 3, color: "#8b949e", textDecoration: "none" }}>
+                        <Link href={`/repo/${repo.owner.login}/${repo.name}/issues`} className="flex items-center gap-1 text-base-content/60">
                           <AlertCircle size={12} /> {repo.open_issues_count}
                         </Link>
                       )}
-                      <span style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                      <span className="flex items-center gap-1">
                         <Clock size={12} /> Updated {timeAgo(repo.updated_at)}
                       </span>
                     </div>
                   </div>
 
                   {/* AI button */}
-                  <Link href={`/repo/${repo.owner.login}/${repo.name}/ai`}
-                    style={{ border: "1px solid #30363d", borderRadius: 6, color: "#e6edf3", fontSize: 12, fontWeight: 500, padding: "4px 12px", textDecoration: "none", display: "flex", alignItems: "center", gap: 4, flexShrink: 0, whiteSpace: "nowrap", background: "#21262d" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#58a6ff")}
-                    onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#30363d")}
-                  >
-                    <Sparkles size={12} style={{ color: "#58a6ff" }} /> Ask AI
+                  <Link href={`/repo/${repo.owner.login}/${repo.name}/ai`} className="btn btn-sm btn-outline gap-1 shrink-0 whitespace-nowrap min-h-[44px] sm:min-h-0">
+                    <Sparkles size={12} className="text-primary" /> Ask AI
                   </Link>
                 </div>
               </div>
@@ -390,101 +379,100 @@ export default function Dashboard() {
       </div>
 
       {/* Right sidebar */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div className="w-full lg:w-80 shrink-0 flex flex-col gap-4">
         {/* User card */}
         {user && (
-          <div style={{ display: "flex", gap: 12, alignItems: "center", padding: "16px 0", borderBottom: "1px solid #21262d" }}>
+          <div className="flex gap-3 items-center py-4 border-b border-base-300">
             {user.imageUrl
-              ? <img src={user.imageUrl} alt="" style={{ width: 48, height: 48, borderRadius: "50%", border: "1px solid #30363d" }} />
-              : <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#238636", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: 20 }}>{(user.username ?? "?")[0].toUpperCase()}</div>
+              // eslint-disable-next-line @next/next/no-img-element
+              ? <img src={user.imageUrl} alt="" className="w-12 h-12 rounded-full border border-base-300" />
+              : <div className="w-12 h-12 rounded-full bg-success flex items-center justify-center text-white font-bold text-xl">{(user.username ?? "?")[0].toUpperCase()}</div>
             }
             <div>
-              <p style={{ fontWeight: 600, fontSize: 15 }}>{user.fullName ?? user.username}</p>
-              <p style={{ color: "#8b949e", fontSize: 13 }}>@{user.username}</p>
+              <p className="font-semibold text-base">{user.fullName ?? user.username}</p>
+              <p className="text-base-content/60 text-sm">@{user.username}</p>
             </div>
           </div>
         )}
 
         {/* Quick nav */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+        <div className="flex flex-col gap-0">
           {[
             { icon: <BookOpen size={14} />, label: "Your repositories", href: "/" },
             { icon: <GitBranch size={14} />, label: "Your pull requests", href: "/pulls" },
             { icon: <AlertCircle size={14} />, label: "Your issues", href: "/issues" },
             { icon: <Sparkles size={14} />, label: "AI Assistant", href: "/ai" },
           ].map((item) => (
-            <Link key={item.href} href={item.href}
-              style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", color: "#e6edf3", textDecoration: "none", fontSize: 13, borderBottom: "1px solid #21262d" }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#58a6ff")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "#e6edf3")}
-            >
-              <span style={{ color: "#6e7681" }}>{item.icon}</span>
+            <Link key={item.href} href={item.href} className="flex items-center gap-2 py-2 text-base-content text-sm border-b border-base-300 hover:text-primary min-h-[44px]">
+              <span className="text-base-content/50">{item.icon}</span>
               {item.label}
             </Link>
           ))}
         </div>
 
         {/* Trending */}
-        <div style={{ background: "#161b22", border: "1px solid #30363d", borderRadius: 6, padding: 16 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-            <h3 style={{ fontSize: 13, fontWeight: 600, color: "#e6edf3" }}>Trending today</h3>
-            <Link href="/explore" style={{ fontSize: 11, color: "#58a6ff", textDecoration: "none" }}>See all</Link>
-          </div>
-          {trendingLoading ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {[1,2,3].map((i) => <div key={i} style={{ height: 36, background: "#21262d", borderRadius: 4 }} className="animate-pulse" />)}
+        <div className="card bg-base-200 border border-base-300">
+          <div className="card-body p-4">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="text-sm font-semibold text-base-content">Trending today</h3>
+              <Link href="/explore" className="text-xs text-primary">See all</Link>
             </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {trending.slice(0, 5).map((r) => (
-                <div key={r.id} style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
-                  <img src={r.owner.avatar_url} alt="" style={{ width: 18, height: 18, borderRadius: "50%", border: "1px solid #30363d", flexShrink: 0, marginTop: 1 }} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <Link href={`/repo/${r.owner.login}/${r.name}`}
-                      style={{ color: "#58a6ff", fontSize: 12, fontWeight: 600, textDecoration: "none", display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {r.full_name}
-                    </Link>
-                    <div style={{ display: "flex", gap: 8, fontSize: 11, color: "#8b949e", marginTop: 2 }}>
-                      {r.language && <span>{r.language}</span>}
-                      <span style={{ display: "flex", alignItems: "center", gap: 2 }}><Star size={10} /> {r.stargazers_count.toLocaleString()}</span>
+            {trendingLoading ? (
+              <div className="flex flex-col gap-2.5">
+                {[1,2,3].map((i) => <div key={i} className="h-9 bg-base-300 rounded animate-pulse" />)}
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2.5">
+                {trending.slice(0, 5).map((r) => (
+                  <div key={r.id} className="flex gap-2 items-start">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={r.owner.avatar_url} alt="" className="w-[18px] h-[18px] rounded-full border border-base-300 shrink-0 mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                      <Link href={`/repo/${r.owner.login}/${r.name}`} className="text-primary text-xs font-semibold block truncate">
+                        {r.full_name}
+                      </Link>
+                      <div className="flex gap-2 text-[11px] text-base-content/60 mt-0.5">
+                        {r.language && <span>{r.language}</span>}
+                        <span className="flex items-center gap-0.5"><Star size={10} /> {r.stargazers_count.toLocaleString()}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-          <Link href="/explore" style={{ display: "block", marginTop: 12, fontSize: 12, color: "#8b949e", textDecoration: "none" }}>
-            Explore more repositories →
-          </Link>
+                ))}
+              </div>
+            )}
+            <Link href="/explore" className="block mt-3 text-xs text-base-content/60">
+              Explore more repositories →
+            </Link>
+          </div>
         </div>
 
         {/* Stats */}
         {repos.length > 0 && (
-          <div style={{ background: "#161b22", border: "1px solid #30363d", borderRadius: 6, padding: 16 }}>
-            <h3 style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Your stats</h3>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
-                <span style={{ color: "#8b949e" }}>Repositories</span>
-                <span style={{ fontWeight: 600 }}>{repos.length}</span>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
-                <span style={{ color: "#8b949e" }}>Public</span>
-                <span style={{ fontWeight: 600 }}>{repos.filter((r) => !r.private).length}</span>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
-                <span style={{ color: "#8b949e" }}>Private</span>
-                <span style={{ fontWeight: 600 }}>{repos.filter((r) => r.private).length}</span>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
-                <span style={{ color: "#8b949e" }}>Total stars</span>
-                <span style={{ fontWeight: 600 }}>{repos.reduce((s, r) => s + r.stargazers_count, 0).toLocaleString()}</span>
+          <div className="card bg-base-200 border border-base-300">
+            <div className="card-body p-4">
+              <h3 className="text-sm font-semibold mb-3">Your stats</h3>
+              <div className="flex flex-col gap-2">
+                <div className="flex justify-between text-xs">
+                  <span className="text-base-content/60">Repositories</span>
+                  <span className="font-semibold">{repos.length}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-base-content/60">Public</span>
+                  <span className="font-semibold">{repos.filter((r) => !r.private).length}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-base-content/60">Private</span>
+                  <span className="font-semibold">{repos.filter((r) => r.private).length}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-base-content/60">Total stars</span>
+                  <span className="font-semibold">{repos.reduce((s, r) => s + r.stargazers_count, 0).toLocaleString()}</span>
+                </div>
               </div>
             </div>
           </div>
         )}
       </div>
-
-      <style>{`@media(max-width:767px){.gh-dashboard{grid-template-columns:1fr!important;}}`}</style>
 
       {/* New Repo Modal */}
       {showNewRepo && (

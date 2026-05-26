@@ -97,8 +97,8 @@ function ExploreContent() {
       </div>
 
       {/* Search */}
-      <form onSubmit={handleSearch} className="flex gap-2">
-        <div className="relative flex-1 max-w-xl">
+      <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2">
+        <div className="relative flex-1 sm:max-w-xl">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40 pointer-events-none" />
           <input
             type="text"
@@ -108,16 +108,18 @@ function ExploreContent() {
             onChange={(e) => setInputVal(e.target.value)}
           />
         </div>
-        <button type="submit" className="btn btn-sm btn-primary">Search</button>
-        {query && (
-          <button
-            type="button"
-            className="btn btn-sm btn-ghost"
-            onClick={() => { setQuery(""); setInputVal(""); router.replace("/explore"); }}
-          >
-            Clear
-          </button>
-        )}
+        <div className="flex gap-2">
+          <button type="submit" className="btn btn-sm btn-primary">Search</button>
+          {query && (
+            <button
+              type="button"
+              className="btn btn-sm btn-ghost"
+              onClick={() => { setQuery(""); setInputVal(""); router.replace("/explore"); }}
+            >
+              Clear
+            </button>
+          )}
+        </div>
       </form>
 
       {/* Filter tabs (only when no query) */}

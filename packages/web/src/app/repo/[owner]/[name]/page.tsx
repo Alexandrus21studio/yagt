@@ -78,20 +78,6 @@ function formatFileSize(bytes: number) {
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 
-const S = {
-  border: "1px solid #30363d",
-  borderMuted: "1px solid #21262d",
-  bg: "#0d1117",
-  surface: "#161b22",
-  surface2: "#21262d",
-  text: "#e6edf3",
-  muted: "#8b949e",
-  subtle: "#6e7681",
-  accent: "#58a6ff",
-  green: "#238636",
-  greenFg: "#3fb950",
-};
-
 export default function RepoPage() {
   const params = useParams<{ owner: string; name: string }>();
   const { owner, name } = params;
@@ -199,147 +185,148 @@ export default function RepoPage() {
     navigator.clipboard.writeText(text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
   }
 
-  if (loading) return <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: 200 }}><span className="loading loading-spinner loading-lg" style={{ color: S.accent }} /></div>;
-  if (error) return <div style={{ background: "#2d1b1b", border: "1px solid #f85149", borderRadius: 6, padding: "12px 16px", color: "#f85149" }}>{error}</div>;
+  if (loading) return (
+    <div className="flex justify-center items-center h-52">
+      <span className="loading loading-spinner loading-lg text-primary" />
+    </div>
+  );
+  if (error) return <div className="alert alert-error text-sm">{error}</div>;
 
   const pathParts = currentPath ? currentPath.split("/") : [];
   const lastCommit = commits[0];
   const cloneUrl = cloneTab === "https" ? repo?.clone_url : cloneTab === "ssh" ? repo?.ssh_url : `gh repo clone ${owner}/${name}`;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+    <div className="flex flex-col">
 
       {/* ── Repo header ── */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+      <div className="flex flex-col gap-2 mb-4">
         {/* Breadcrumb + badges */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <Code2 size={16} style={{ color: S.muted }} />
-          <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 20, fontWeight: 300 }}>
-            <Link href="/" style={{ color: S.accent, textDecoration: "none", fontWeight: 400 }}
-              onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
-              onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}>{owner}</Link>
-            <span style={{ color: S.muted }}>/</span>
-            <Link href={`/repo/${owner}/${name}`} style={{ color: S.accent, textDecoration: "none", fontWeight: 700 }}
-              onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
-              onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}>{name}</Link>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Code2 size={16} className="text-base-content/60" />
+          <div className="flex items-center gap-1 text-xl font-light">
+            <Link href="/" className="text-primary hover:underline font-normal">{owner}</Link>
+            <span className="text-base-content/60">/</span>
+            <Link href={`/repo/${owner}/${name}`} className="text-primary hover:underline font-bold">{name}</Link>
           </div>
-          <span style={{ border: S.border, borderRadius: "2em", color: S.muted, fontSize: 12, padding: "2px 8px" }}>
+          <span className="badge badge-sm badge-outline text-base-content/60">
             {repo?.private ? "Private" : "Public"}
           </span>
         </div>
 
         {/* Watch / Star / Fork buttons */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <button style={{ display: "flex", alignItems: "center", gap: 0, background: S.surface2, border: S.border, borderRadius: 6, color: S.text, fontSize: 12, fontWeight: 600, cursor: "pointer", overflow: "hidden" }}>
-            <span style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 12px", borderRight: S.border }}>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button className="join btn btn-sm btn-outline p-0 overflow-hidden min-h-[44px] sm:min-h-0">
+            <span className="join-item flex items-center gap-1 px-3 py-1 border-r border-base-300">
               <Eye size={14} /> Watch
             </span>
-            <span style={{ padding: "5px 10px" }}>{repo?.watchers_count?.toLocaleString()}</span>
+            <span className="join-item px-2.5 py-1">{repo?.watchers_count?.toLocaleString()}</span>
           </button>
 
           <button
             onClick={() => setStarred((v) => !v)}
-            style={{ display: "flex", alignItems: "center", gap: 0, background: S.surface2, border: S.border, borderRadius: 6, color: S.text, fontSize: 12, fontWeight: 600, cursor: "pointer", overflow: "hidden" }}
+            className="join btn btn-sm btn-outline p-0 overflow-hidden min-h-[44px] sm:min-h-0"
           >
-            <span style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 12px", borderRight: S.border, color: starred ? "#e3b341" : S.text }}>
+            <span className={`join-item flex items-center gap-1 px-3 py-1 border-r border-base-300 ${starred ? "text-warning" : ""}`}>
               <Star size={14} fill={starred ? "#e3b341" : "none"} /> {starred ? "Starred" : "Star"}
             </span>
-            <span style={{ padding: "5px 10px" }}>{((repo?.stargazers_count ?? 0) + (starred ? 1 : 0)).toLocaleString()}</span>
+            <span className="join-item px-2.5 py-1">{((repo?.stargazers_count ?? 0) + (starred ? 1 : 0)).toLocaleString()}</span>
           </button>
 
           <button
             onClick={forkRepo}
             disabled={forking}
-            style={{ display: "flex", alignItems: "center", gap: 0, background: forkDone ? "#1a2f23" : S.surface2, border: forkDone ? "1px solid #238636" : S.border, borderRadius: 6, color: forkDone ? S.greenFg : S.text, fontSize: 12, fontWeight: 600, cursor: "pointer", overflow: "hidden" }}
+            className={`join btn btn-sm p-0 overflow-hidden min-h-[44px] sm:min-h-0 ${forkDone ? "btn-success btn-outline" : "btn-outline"}`}
           >
-            <span style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 12px", borderRight: forkDone ? "1px solid #238636" : S.border }}>
+            <span className={`join-item flex items-center gap-1 px-3 py-1 border-r ${forkDone ? "border-success" : "border-base-300"}`}>
               <GitFork size={14} /> {forkDone ? "Forked!" : "Fork"}
             </span>
-            <span style={{ padding: "5px 10px" }}>{repo?.forks_count?.toLocaleString()}</span>
+            <span className="join-item px-2.5 py-1">{repo?.forks_count?.toLocaleString()}</span>
           </button>
         </div>
       </div>
 
       {/* ── Tabs ── */}
-      <div style={{ borderBottom: S.border, display: "flex", gap: 0, marginBottom: 16, overflowX: "auto" }}>
+      <div className="tabs tabs-bordered overflow-x-auto flex-nowrap gap-0 mb-4">
         {[
-          { label: "Code", href: "", icon: <Code2 size={14} /> },
+          { label: "Code", href: "", icon: <Code2 size={14} />, active: true },
           { label: "Issues", href: "/issues", icon: <AlertCircle size={14} />, count: repo?.open_issues_count },
           { label: "Pull requests", href: "/pulls", icon: <GitBranch size={14} /> },
           { label: "Commits", href: "/commits", icon: <GitCommit size={14} /> },
           { label: "AI Assistant", href: "/ai", icon: <Sparkles size={14} /> },
         ].map((t) => (
-          <Link key={t.label} href={`/repo/${owner}/${name}${t.href}`}
-            style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", color: t.label === "Code" ? S.text : S.muted, textDecoration: "none", fontSize: 13, fontWeight: t.label === "Code" ? 600 : 400, borderBottom: t.label === "Code" ? "2px solid #f78166" : "2px solid transparent", whiteSpace: "nowrap" }}
-            onMouseEnter={(e) => { if (t.label !== "Code") e.currentTarget.style.color = S.text; }}
-            onMouseLeave={(e) => { if (t.label !== "Code") e.currentTarget.style.color = S.muted; }}
+          <Link
+            key={t.label}
+            href={`/repo/${owner}/${name}${t.href}`}
+            className={`tab whitespace-nowrap gap-1.5 ${t.active ? "tab-active" : ""}`}
           >
-            <span style={{ color: t.label === "Code" ? S.text : S.muted }}>{t.icon}</span>
+            {t.icon}
             {t.label}
             {t.count !== undefined && t.count > 0 && (
-              <span style={{ background: S.surface2, border: S.border, borderRadius: "2em", fontSize: 11, padding: "0 6px", lineHeight: "18px", color: S.muted }}>{t.count}</span>
+              <span className="badge badge-sm badge-ghost">{t.count}</span>
             )}
           </Link>
         ))}
       </div>
 
       {/* ── Main two-column layout ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 296px", gap: 24 }} className="gh-repo-grid">
+      <div className="flex flex-col lg:flex-row gap-4">
 
         {/* Left: file browser + README */}
-        <div style={{ minWidth: 0 }}>
+        <div className="flex-1 min-w-0">
 
           {/* Branch selector + actions row */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <button style={{ display: "flex", alignItems: "center", gap: 6, background: S.surface2, border: S.border, borderRadius: 6, color: S.text, fontSize: 13, fontWeight: 600, padding: "5px 12px", cursor: "pointer" }}>
+          <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              <button className="btn btn-sm btn-outline gap-1.5 min-h-[44px] sm:min-h-0">
                 <GitBranch size={14} />
                 {repo?.default_branch}
-                <ChevronRight size={12} style={{ transform: "rotate(90deg)" }} />
+                <ChevronRight size={12} className="rotate-90" />
               </button>
-              <span style={{ color: S.muted, fontSize: 13 }}>
-                <Link href={`/repo/${owner}/${name}/commits`} style={{ color: S.accent, textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
-                  <Clock size={13} /> {commits.length}+ commits
-                </Link>
-              </span>
+              <Link href={`/repo/${owner}/${name}/commits`} className="text-primary text-sm flex items-center gap-1">
+                <Clock size={13} /> {commits.length}+ commits
+              </Link>
             </div>
 
-            <div style={{ display: "flex", gap: 8 }}>
+            <div className="flex gap-2 relative">
               {/* Code (clone) dropdown */}
-              <div style={{ position: "relative" }}>
+              <div className="relative">
                 <button
                   onClick={() => setShowCode((v) => !v)}
-                  style={{ display: "flex", alignItems: "center", gap: 6, background: S.green, border: "1px solid rgba(240,246,252,0.1)", borderRadius: 6, color: "#fff", fontSize: 13, fontWeight: 600, padding: "5px 16px", cursor: "pointer" }}
+                  className="btn btn-sm btn-success gap-1.5 min-h-[44px] sm:min-h-0"
                 >
                   <Code2 size={14} /> Code
-                  <ChevronRight size={12} style={{ transform: "rotate(90deg)", color: "rgba(255,255,255,0.7)" }} />
+                  <ChevronRight size={12} className="rotate-90 opacity-70" />
                 </button>
 
                 {showCode && (
-                  <div style={{ position: "absolute", right: 0, top: "calc(100% + 4px)", width: 340, background: S.surface, border: S.border, borderRadius: 6, boxShadow: "0 8px 24px rgba(1,4,9,0.8)", zIndex: 100 }}>
-                    <div style={{ padding: "12px 16px", borderBottom: S.borderMuted }}>
-                      <div style={{ display: "flex", gap: 4, marginBottom: 10 }}>
+                  <div className="absolute right-0 top-[calc(100%+4px)] w-[340px] max-w-[calc(100vw-2rem)] bg-base-200 border border-base-300 rounded-md shadow-2xl z-[100]">
+                    <div className="p-3 border-b border-base-300">
+                      <div className="flex gap-1 mb-2.5">
                         {(["https", "ssh", "cli"] as const).map((t) => (
-                          <button key={t} onClick={() => setCloneTab(t)}
-                            style={{ flex: 1, background: cloneTab === t ? S.surface2 : "none", border: cloneTab === t ? S.border : "1px solid transparent", borderRadius: 4, color: cloneTab === t ? S.text : S.muted, fontSize: 12, fontWeight: 600, padding: "4px 0", cursor: "pointer", textTransform: "uppercase" }}>
+                          <button
+                            key={t}
+                            onClick={() => setCloneTab(t)}
+                            className={`flex-1 text-xs font-semibold py-1 rounded uppercase ${cloneTab === t ? "bg-base-300 border border-base-300 text-base-content" : "border border-transparent text-base-content/60"}`}
+                          >
                             {t}
                           </button>
                         ))}
-                        <button onClick={() => setShowCode(false)} style={{ background: "none", border: "none", color: S.muted, cursor: "pointer", padding: "4px 8px" }}>
+                        <button onClick={() => setShowCode(false)} className="btn btn-ghost btn-xs">
                           <X size={14} />
                         </button>
                       </div>
-                      <div style={{ display: "flex", gap: 6 }}>
-                        <input readOnly value={cloneUrl ?? ""} style={{ flex: 1, background: S.bg, border: S.border, borderRadius: 4, color: S.text, fontSize: 12, fontFamily: "monospace", padding: "6px 10px", outline: "none" }} />
-                        <button onClick={() => copy(cloneUrl ?? "")} style={{ background: S.surface2, border: S.border, borderRadius: 4, color: S.text, cursor: "pointer", padding: "6px 10px" }}>
-                          {copied ? <Check size={13} style={{ color: S.greenFg }} /> : <Copy size={13} />}
+                      <div className="flex gap-1.5">
+                        <input readOnly value={cloneUrl ?? ""} className="input input-bordered input-xs flex-1 font-mono bg-base-100" />
+                        <button onClick={() => copy(cloneUrl ?? "")} className="btn btn-sm btn-outline">
+                          {copied ? <Check size={13} className="text-success" /> : <Copy size={13} />}
                         </button>
                       </div>
                     </div>
-                    <div style={{ padding: "8px 16px" }}>
+                    <div className="px-4 py-2">
                       <a href={`https://github.com/${owner}/${name}/archive/refs/heads/${repo?.default_branch ?? "main"}.zip`} target="_blank" rel="noopener noreferrer"
-                        style={{ display: "flex", alignItems: "center", gap: 8, color: S.text, textDecoration: "none", fontSize: 13, padding: "6px 0" }}>
-                        <Download size={14} style={{ color: S.muted }} /> Download ZIP
+                        className="flex items-center gap-2 text-base-content text-sm py-1.5">
+                        <Download size={14} className="text-base-content/60" /> Download ZIP
                       </a>
                     </div>
                   </div>
@@ -349,40 +336,41 @@ export default function RepoPage() {
           </div>
 
           {/* File tree */}
-          <div style={{ border: S.border, borderRadius: 6, overflow: "hidden", marginBottom: 16 }}>
+          <div className="border border-base-300 rounded-md overflow-hidden mb-4">
             {/* Latest commit bar */}
             {lastCommit && (
-              <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 16px", background: S.surface, borderBottom: S.border, fontSize: 13 }}>
+              <div className="flex items-center gap-2.5 px-4 py-2.5 bg-base-200 border-b border-base-300 text-sm">
                 {lastCommit.author?.avatar_url && (
-                  <img src={lastCommit.author.avatar_url} alt="" style={{ width: 20, height: 20, borderRadius: "50%", border: S.border }} />
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={lastCommit.author.avatar_url} alt="" className="w-5 h-5 rounded-full border border-base-300" />
                 )}
-                <span style={{ fontWeight: 600, color: S.text }}>{lastCommit.author?.login ?? lastCommit.commit.author.name}</span>
-                <span style={{ color: S.muted, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <span className="font-semibold text-base-content">{lastCommit.author?.login ?? lastCommit.commit.author.name}</span>
+                <span className="text-base-content/60 flex-1 truncate">
                   {lastCommit.commit.message.split("\n")[0]}
                 </span>
-                <span style={{ color: S.muted, flexShrink: 0, fontSize: 12 }}>{timeAgo(lastCommit.commit.author.date)}</span>
-                <a href={lastCommit.html_url} target="_blank" rel="noopener noreferrer" style={{ color: S.muted, fontSize: 12 }}>
-                  <code style={{ fontFamily: "monospace" }}>{lastCommit.sha.slice(0, 7)}</code>
+                <span className="text-base-content/60 shrink-0 text-xs">{timeAgo(lastCommit.commit.author.date)}</span>
+                <a href={lastCommit.html_url} target="_blank" rel="noopener noreferrer" className="text-base-content/60 text-xs">
+                  <code className="font-mono">{lastCommit.sha.slice(0, 7)}</code>
                 </a>
               </div>
             )}
 
             {/* Breadcrumb */}
             {(currentPath || viewingFile) && (
-              <div style={{ display: "flex", alignItems: "center", gap: 4, padding: "8px 16px", borderBottom: S.borderMuted, fontSize: 13, flexWrap: "wrap" }}>
-                <button onClick={() => { navigateTo(""); setViewingFile(null); }} style={{ background: "none", border: "none", color: S.accent, cursor: "pointer", padding: 0, fontSize: 13 }}>{name}</button>
+              <div className="flex items-center gap-1 px-4 py-2 border-b border-base-300 text-sm flex-wrap">
+                <button onClick={() => { navigateTo(""); setViewingFile(null); }} className="text-primary text-sm bg-transparent border-none p-0">{name}</button>
                 {pathParts.map((part, i) => (
-                  <span key={i} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                    <span style={{ color: S.subtle }}>/</span>
+                  <span key={i} className="flex items-center gap-1">
+                    <span className="text-base-content/40">/</span>
                     {i < pathParts.length - 1 || viewingFile ? (
-                      <button onClick={() => navigateTo(pathParts.slice(0, i + 1).join("/"))} style={{ background: "none", border: "none", color: S.accent, cursor: "pointer", padding: 0, fontSize: 13 }}>{part}</button>
-                    ) : <span style={{ color: S.text, fontWeight: 600 }}>{part}</span>}
+                      <button onClick={() => navigateTo(pathParts.slice(0, i + 1).join("/"))} className="text-primary text-sm bg-transparent border-none p-0">{part}</button>
+                    ) : <span className="text-base-content font-semibold">{part}</span>}
                   </span>
                 ))}
                 {viewingFile && (
-                  <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                    <span style={{ color: S.subtle }}>/</span>
-                    <span style={{ color: S.text, fontWeight: 600 }}>{viewingFile.name}</span>
+                  <span className="flex items-center gap-1">
+                    <span className="text-base-content/40">/</span>
+                    <span className="text-base-content font-semibold">{viewingFile.name}</span>
                   </span>
                 )}
               </div>
@@ -390,100 +378,100 @@ export default function RepoPage() {
 
             {/* Go up */}
             {currentPath && !viewingFile && (
-              <div onClick={() => { const p = currentPath.split("/"); p.pop(); navigateTo(p.join("/")); }}
-                style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 16px", borderBottom: S.borderMuted, cursor: "pointer", fontSize: 13 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = S.surface)}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+              <div
+                onClick={() => { const p = currentPath.split("/"); p.pop(); navigateTo(p.join("/")); }}
+                className="flex items-center gap-2.5 px-4 py-1.5 border-b border-base-300 cursor-pointer text-sm hover:bg-base-200"
               >
-                <ArrowLeft size={14} style={{ color: S.muted }} />
-                <span style={{ color: S.muted }}>..</span>
+                <ArrowLeft size={14} className="text-base-content/60" />
+                <span className="text-base-content/60">..</span>
               </div>
             )}
 
             {/* File list */}
             {!viewingFile && files.map((f, i) => (
-              <div key={f.path}
+              <div
+                key={f.path}
                 onClick={() => openFile(f)}
-                style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 16px", borderBottom: i < files.length - 1 ? S.borderMuted : "none", cursor: "pointer", fontSize: 13, transition: "background 0.1s" }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = S.surface)}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                className={`flex items-center gap-2.5 px-4 py-1.5 cursor-pointer text-sm hover:bg-base-200 ${i < files.length - 1 ? "border-b border-base-300" : ""}`}
               >
                 {f.type === "dir"
-                  ? <Folder size={16} style={{ color: "#8ab4f8", flexShrink: 0 }} />
-                  : <FileText size={16} style={{ color: S.muted, flexShrink: 0 }} />}
-                <span style={{ flex: 1, color: f.type === "dir" ? S.text : S.text, fontWeight: f.type === "dir" ? 400 : 400 }}>{f.name}</span>
-                <span style={{ color: S.muted, fontSize: 12, flexShrink: 0 }}>
+                  ? <Folder size={16} className="text-info shrink-0" />
+                  : <FileText size={16} className="text-base-content/60 shrink-0" />}
+                <span className="flex-1 text-base-content truncate">{f.name}</span>
+                <span className="text-base-content/60 text-xs shrink-0 hidden sm:inline truncate max-w-[40%]">
                   {lastCommit?.commit.message.split("\n")[0].slice(0, 60)}
                 </span>
                 {f.type === "file" && f.size !== undefined && (
-                  <span style={{ color: S.subtle, fontSize: 12, flexShrink: 0, marginLeft: 12 }}>{formatFileSize(f.size)}</span>
+                  <span className="text-base-content/40 text-xs shrink-0 ml-3 hidden sm:inline">{formatFileSize(f.size)}</span>
                 )}
-                <span style={{ color: S.subtle, fontSize: 12, flexShrink: 0 }}>
+                <span className="text-base-content/40 text-xs shrink-0">
                   {lastCommit ? timeAgo(lastCommit.commit.author.date) : ""}
                 </span>
               </div>
             ))}
 
             {files.length === 0 && !viewingFile && (
-              <div style={{ padding: "40px 16px", textAlign: "center", color: S.muted }}>Empty directory</div>
+              <div className="py-10 text-center text-base-content/60">Empty directory</div>
             )}
 
             {/* File viewer */}
             {viewingFile && (
               <div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 16px", background: S.surface, borderBottom: S.border, gap: 8, flexWrap: "wrap" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: S.muted }}>
+                <div className="flex items-center justify-between px-4 py-2 bg-base-200 border-b border-base-300 gap-2 flex-wrap">
+                  <div className="flex items-center gap-2 text-xs text-base-content/60">
                     <FileText size={13} />
-                    <span style={{ color: S.text, fontWeight: 600 }}>{viewingFile.name}</span>
+                    <span className="text-base-content font-semibold">{viewingFile.name}</span>
                     {viewingFile.size !== undefined && <span>{formatFileSize(viewingFile.size)}</span>}
                   </div>
-                  <div style={{ display: "flex", gap: 4 }}>
+                  <div className="flex gap-1">
                     {!editMode && fileContent !== "(Binary file)" && (
-                      <button onClick={() => { setEditContent(fileContent); setCommitMsg(`Update ${viewingFile.name}`); setEditMode(true); }}
-                        style={{ display: "flex", alignItems: "center", gap: 4, background: S.surface2, border: S.border, borderRadius: 6, color: S.text, fontSize: 12, padding: "4px 10px", cursor: "pointer" }}>
+                      <button
+                        onClick={() => { setEditContent(fileContent); setCommitMsg(`Update ${viewingFile.name}`); setEditMode(true); }}
+                        className="btn btn-xs btn-outline gap-1"
+                      >
                         <Edit3 size={12} /> Edit
                       </button>
                     )}
-                    <button onClick={() => { copy(fileContent); }}
-                      style={{ display: "flex", alignItems: "center", gap: 4, background: S.surface2, border: S.border, borderRadius: 6, color: S.text, fontSize: 12, padding: "4px 10px", cursor: "pointer" }}>
-                      {copied ? <Check size={12} style={{ color: S.greenFg }} /> : <Copy size={12} />} Copy
+                    <button onClick={() => { copy(fileContent); }} className="btn btn-xs btn-outline gap-1">
+                      {copied ? <Check size={12} className="text-success" /> : <Copy size={12} />} Copy
                     </button>
-                    <button onClick={() => { setViewingFile(null); setEditMode(false); }}
-                      style={{ background: S.surface2, border: S.border, borderRadius: 6, color: S.muted, fontSize: 12, padding: "4px 8px", cursor: "pointer" }}>
+                    <button onClick={() => { setViewingFile(null); setEditMode(false); }} className="btn btn-xs btn-outline">
                       <X size={12} />
                     </button>
                   </div>
                 </div>
 
                 {fileLoading ? (
-                  <div style={{ display: "flex", justifyContent: "center", padding: 40 }}>
-                    <span className="loading loading-spinner" style={{ color: S.accent }} />
+                  <div className="flex justify-center p-10">
+                    <span className="loading loading-spinner text-primary" />
                   </div>
                 ) : editMode ? (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: 16, background: S.bg }}>
+                  <div className="flex flex-col gap-2 p-4 bg-base-100">
                     <textarea
                       value={editContent}
                       onChange={(e) => setEditContent(e.target.value)}
-                      style={{ width: "100%", minHeight: 400, background: S.bg, border: S.border, borderRadius: 6, color: S.text, fontFamily: "ui-monospace, monospace", fontSize: 13, padding: 16, resize: "vertical", outline: "none", lineHeight: 1.6 }}
+                      className="textarea textarea-bordered w-full min-h-[400px] font-mono text-sm leading-relaxed bg-base-100"
                     />
-                    <input type="text" placeholder="Commit message" value={commitMsg} onChange={(e) => setCommitMsg(e.target.value)}
-                      style={{ background: S.bg, border: S.border, borderRadius: 6, color: S.text, fontSize: 13, padding: "8px 12px", outline: "none" }}
+                    <input
+                      type="text"
+                      placeholder="Commit message"
+                      value={commitMsg}
+                      onChange={(e) => setCommitMsg(e.target.value)}
+                      className="input input-bordered input-sm bg-base-100"
                     />
-                    {saveError && <p style={{ color: "#f85149", fontSize: 12 }}>{saveError}</p>}
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <button onClick={saveFile} disabled={saving || !commitMsg.trim()}
-                        style={{ display: "flex", alignItems: "center", gap: 4, background: S.green, border: "1px solid rgba(240,246,252,0.1)", borderRadius: 6, color: "#fff", fontSize: 13, fontWeight: 600, padding: "6px 16px", cursor: "pointer" }}>
+                    {saveError && <p className="text-error text-xs">{saveError}</p>}
+                    <div className="flex gap-2">
+                      <button onClick={saveFile} disabled={saving || !commitMsg.trim()} className="btn btn-sm btn-success gap-1">
                         {saving ? <span className="loading loading-spinner loading-xs" /> : <Save size={13} />} Commit changes
                       </button>
-                      <button onClick={() => setEditMode(false)}
-                        style={{ background: S.surface2, border: S.border, borderRadius: 6, color: S.text, fontSize: 13, padding: "6px 16px", cursor: "pointer" }}>
+                      <button onClick={() => setEditMode(false)} className="btn btn-sm btn-outline">
                         Cancel
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <div style={{ background: S.bg, overflow: "auto" }}>
-                    <pre style={{ margin: 0, padding: 16, fontFamily: "ui-monospace, monospace", fontSize: 13, color: S.text, lineHeight: 1.6, whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
+                  <div className="bg-base-100 overflow-auto">
+                    <pre className="m-0 p-4 font-mono text-sm text-base-content leading-relaxed whitespace-pre-wrap break-all">
                       {fileContent}
                     </pre>
                   </div>
@@ -494,11 +482,11 @@ export default function RepoPage() {
 
           {/* README */}
           {readme && !viewingFile && (
-            <div style={{ border: S.border, borderRadius: 6, overflow: "hidden" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 16px", background: S.surface, borderBottom: S.border, fontSize: 13, fontWeight: 600 }}>
-                <FileText size={14} style={{ color: S.muted }} /> README.md
+            <div className="border border-base-300 rounded-md overflow-hidden">
+              <div className="flex items-center gap-2 px-4 py-2.5 bg-base-200 border-b border-base-300 text-sm font-semibold">
+                <FileText size={14} className="text-base-content/60" /> README.md
               </div>
-              <div className="prose prose-invert max-w-none" style={{ padding: "24px 32px", background: S.bg, fontSize: 14, lineHeight: 1.7 }}>
+              <div className="prose prose-invert max-w-none p-6 sm:p-8 bg-base-100 text-sm leading-relaxed">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{readme}</ReactMarkdown>
               </div>
             </div>
@@ -506,34 +494,33 @@ export default function RepoPage() {
         </div>
 
         {/* ── Right sidebar ── */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+        <div className="w-full lg:w-72 shrink-0 flex flex-col gap-5">
           {/* About */}
           <div>
-            <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, paddingBottom: 8, borderBottom: S.border }}>About</h3>
-            {repo?.description && <p style={{ fontSize: 14, color: S.text, lineHeight: 1.5, marginBottom: 12 }}>{repo.description}</p>}
+            <h3 className="text-base font-semibold mb-3 pb-2 border-b border-base-300">About</h3>
+            {repo?.description && <p className="text-sm text-base-content leading-relaxed mb-3">{repo.description}</p>}
             {repo?.homepage && (
-              <a href={repo.homepage} target="_blank" rel="noopener noreferrer"
-                style={{ display: "flex", alignItems: "center", gap: 6, color: S.accent, fontSize: 13, marginBottom: 8, textDecoration: "none" }}>
+              <a href={repo.homepage} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-primary text-sm mb-2">
                 🔗 {repo.homepage}
               </a>
             )}
             {repo?.topics && repo.topics.length > 0 && (
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
+              <div className="flex gap-1.5 flex-wrap mb-3">
                 {repo.topics.map((t) => (
-                  <span key={t} style={{ background: "rgba(56,139,253,0.15)", color: "#58a6ff", borderRadius: "2em", fontSize: 12, fontWeight: 500, padding: "2px 10px" }}>{t}</span>
+                  <span key={t} className="badge badge-sm bg-primary/15 text-primary border-none">{t}</span>
                 ))}
               </div>
             )}
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div className="flex flex-col gap-2">
               {[
                 { icon: <Star size={14} />, label: `${repo?.stargazers_count?.toLocaleString()} stars` },
                 { icon: <Eye size={14} />, label: `${repo?.watchers_count?.toLocaleString()} watching` },
                 { icon: <GitFork size={14} />, label: `${repo?.forks_count?.toLocaleString()} forks` },
-                ...(repo?.license ? [{ icon: <span style={{ fontSize: 14 }}>⚖️</span>, label: repo.license.spdx_id }] : []),
-                ...(repo?.size ? [{ icon: <span style={{ fontSize: 14 }}>💾</span>, label: formatSize(repo.size) }] : []),
+                ...(repo?.license ? [{ icon: <span className="text-sm">⚖️</span>, label: repo.license.spdx_id }] : []),
+                ...(repo?.size ? [{ icon: <span className="text-sm">💾</span>, label: formatSize(repo.size) }] : []),
               ].map((item, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: S.muted }}>
-                  <span style={{ color: S.text }}>{item.icon}</span> {item.label}
+                <div key={i} className="flex items-center gap-2 text-sm text-base-content/60">
+                  <span className="text-base-content">{item.icon}</span> {item.label}
                 </div>
               ))}
             </div>
@@ -542,9 +529,9 @@ export default function RepoPage() {
           {/* Languages */}
           {repo?.language && (
             <div>
-              <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, paddingBottom: 8, borderBottom: S.border }}>Languages</h3>
-              <div style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 13, color: S.muted }}>
-                <span style={{ width: 12, height: 12, borderRadius: "50%", background: langColor[repo.language] ?? "#888", display: "inline-block", flexShrink: 0 }} />
+              <h3 className="text-base font-semibold mb-3 pb-2 border-b border-base-300">Languages</h3>
+              <div className="flex gap-2 items-center text-sm text-base-content/60">
+                <span className="w-3 h-3 rounded-full inline-block shrink-0" style={{ background: langColor[repo.language] ?? "#888" }} />
                 {repo.language}
               </div>
             </div>
@@ -552,20 +539,23 @@ export default function RepoPage() {
 
           {/* Recent commits */}
           <div>
-            <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, paddingBottom: 8, borderBottom: S.border, display: "flex", justifyContent: "space-between" }}>
+            <h3 className="text-base font-semibold mb-3 pb-2 border-b border-base-300 flex justify-between">
               Commits
-              <Link href={`/repo/${owner}/${name}/commits`} style={{ fontSize: 12, color: S.accent, textDecoration: "none", fontWeight: 400 }}>View all →</Link>
+              <Link href={`/repo/${owner}/${name}/commits`} className="text-xs text-primary font-normal">View all →</Link>
             </h3>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div className="flex flex-col gap-3">
               {commits.slice(0, 5).map((c) => (
-                <div key={c.sha} style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
-                  {c.author?.avatar_url && <img src={c.author.avatar_url} alt="" style={{ width: 20, height: 20, borderRadius: "50%", flexShrink: 0, border: S.border, marginTop: 1 }} />}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontSize: 13, color: S.text, lineHeight: 1.4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginBottom: 2 }}>
+                <div key={c.sha} className="flex gap-2 items-start">
+                  {c.author?.avatar_url && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={c.author.avatar_url} alt="" className="w-5 h-5 rounded-full shrink-0 border border-base-300 mt-0.5" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-base-content leading-snug truncate mb-0.5">
                       {c.commit.message.split("\n")[0]}
                     </p>
-                    <div style={{ display: "flex", gap: 6, alignItems: "center", fontSize: 11, color: S.subtle }}>
-                      <a href={c.html_url} target="_blank" rel="noopener noreferrer" style={{ color: S.accent, fontFamily: "monospace", textDecoration: "none" }}>{c.sha.slice(0, 7)}</a>
+                    <div className="flex gap-1.5 items-center text-[11px] text-base-content/40">
+                      <a href={c.html_url} target="_blank" rel="noopener noreferrer" className="text-primary font-mono">{c.sha.slice(0, 7)}</a>
                       <span>·</span>
                       <span>{timeAgo(c.commit.author.date)}</span>
                     </div>
@@ -576,23 +566,16 @@ export default function RepoPage() {
           </div>
 
           {/* Quick actions */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <Link href={`/repo/${owner}/${name}/ai`}
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: S.surface2, border: S.border, borderRadius: 6, color: S.text, fontSize: 13, fontWeight: 600, padding: "8px 16px", textDecoration: "none" }}
-              onMouseEnter={(e) => e.currentTarget.style.borderColor = S.accent}
-              onMouseLeave={(e) => e.currentTarget.style.borderColor = "#30363d"}
-            >
-              <Sparkles size={14} style={{ color: S.accent }} /> Ask AI about this repo
+          <div className="flex flex-col gap-2">
+            <Link href={`/repo/${owner}/${name}/ai`} className="btn btn-sm btn-outline gap-1.5 min-h-[44px] sm:min-h-0">
+              <Sparkles size={14} className="text-primary" /> Ask AI about this repo
             </Link>
-            <a href={repo?.html_url} target="_blank" rel="noopener noreferrer"
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "none", border: S.border, borderRadius: 6, color: S.muted, fontSize: 13, padding: "6px 16px", textDecoration: "none" }}>
+            <a href={repo?.html_url} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-ghost gap-1.5 min-h-[44px] sm:min-h-0 text-base-content/60">
               <Eye size={13} /> View on GitHub ↗
             </a>
           </div>
         </div>
       </div>
-
-      <style>{`@media(max-width:899px){.gh-repo-grid{grid-template-columns:1fr!important;}}`}</style>
     </div>
   );
 }

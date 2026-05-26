@@ -72,7 +72,7 @@ export default function AIPage() {
   }
 
   return (
-    <div className="flex flex-col gap-3 max-w-3xl" style={{ height: "calc(100dvh - 112px)" }}>
+    <div className="flex flex-col gap-3 max-w-3xl h-[calc(100dvh-7.5rem)]">
       {/* Header */}
       <div className="flex items-center gap-2 flex-wrap">
         <Sparkles size={16} className="text-primary shrink-0" />

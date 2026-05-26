@@ -11,10 +11,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" data-theme="gh-dark">
-      <body style={{ background: "#0d1117", color: "#e6edf3", minHeight: "100vh" }}>
+      <body className="bg-base-100 min-h-screen text-base-content">
         <Providers>
           <Header />
-          <main style={{ maxWidth: 1280, margin: "0 auto", padding: "24px 16px" }}>
+          <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
             {children}
           </main>
         </Providers>
