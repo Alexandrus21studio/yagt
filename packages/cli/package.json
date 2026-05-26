@@ -30,11 +30,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/alexandrus21/yagt.git"
+    "url": "https://github.com/Alexandrus21studio/yagt-cli.git"
   },
-  "homepage": "https://github.com/alexandrus21/yagt#readme",
+  "homepage": "https://github.com/Alexandrus21studio/yagt-cli#readme",
   "bugs": {
-    "url": "https://github.com/alexandrus21/yagt/issues"
+    "url": "https://github.com/Alexandrus21studio/yagt-cli/issues"
   },
   "engines": {
     "node": ">=18"
