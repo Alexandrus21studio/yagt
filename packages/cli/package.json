@@ -1,5 +1,5 @@
 {
-  "name": "yagt",
+  "name": "@alexandrus21/yagt",
   "version": "0.2.0",
   "description": "Yet Another Git Tool — AI-powered GitHub CLI with NVIDIA NIMs",
   "main": "src/index.js",

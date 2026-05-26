@@ -14,13 +14,13 @@
 ## Install
 
 ```bash
-npm install -g yagt
+npm install -g @alexandrus21/yagt
 ```
 
 Or run without installing:
 
 ```bash
-npx yagt --help
+npx @alexandrus21/yagt --help
 ```
 
 ---
